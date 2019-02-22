@@ -11,3 +11,10 @@ Platform for developers: create and edit album- automatically create accounts fo
 #### Install <br>
 `npm install` <br>
 `npm start`
+### SLID CLI
+A command line interface: control the carousel directly from the terminal
+#### Install <br>
+`npm install -g slid_cli` <br>
+##### Start a carousel control server
+`slid start`
+##### Next Slide, Previouse Slide soon
