@@ -1,0 +1,9 @@
+export const LOGIN_START = "login_start";
+export const LOGIN_SUCCESS = "login_success";
+export const LOGIN_FAIL = "login_fail";
+export const ADD_ALBUM_START = "add_album_start";
+export const ADD_ALBUM_SUCCESS = "add_album_success";
+export const ADD_ALBUM_FAIL = "add_album_fail";
+export const FETCH_ALBUMS_START = "fetch_albums_start";
+export const FETCH_ALBUMS_SUCCESS = "fetch_albums_success";
+export const FETCH_ALBUMS_FAIL = "fetch_albums_fail";
