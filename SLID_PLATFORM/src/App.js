@@ -49,9 +49,7 @@ class App extends Component {
 
   componentWillMount() {
     firebase.initializeApp(
-      {
-        ...
-      }
+      //add apikey here
     )
     firebase.auth().onAuthStateChanged(user => this.checUser(user))
   }
