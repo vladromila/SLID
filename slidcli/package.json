@@ -1,0 +1,23 @@
+{
+  "name": "slid_cli",
+  "version": "1.1.6",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "slid": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "RVA Media Products",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "commander": "^2.19.0",
+    "express": "^4.16.4",
+    "firebase": "^5.8.3",
+    "fs": "0.0.1-security",
+    "opn": "^5.4.0",
+    "request": "^2.88.0"
+  }
+}
