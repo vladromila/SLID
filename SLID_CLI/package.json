@@ -1,6 +1,6 @@
 {
   "name": "slid_cli",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -14,10 +14,11 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "commander": "^2.19.0",
+    "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "firebase": "^5.8.3",
-    "fs": "0.0.1-security",
     "opn": "^5.4.0",
+    "readline-sync": "^1.4.9",
     "request": "^2.88.0"
   }
 }
