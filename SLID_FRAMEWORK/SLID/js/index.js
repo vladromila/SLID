@@ -3,14 +3,7 @@ let carousel = document.getElementById("carousel");
 let seats = document.querySelectorAll("ul > li");
 
 firebase.initializeApp(
-  {
-    apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
-    authDomain: "slidalbums.firebaseapp.com",
-    databaseURL: "https://slidalbums.firebaseio.com",
-    projectId: "slidalbums",
-    storageBucket: "slidalbums.appspot.com",
-    messagingSenderId: "167009021016"
-  }
+  //api key here
 )
 
 if (seats.length === 1)
