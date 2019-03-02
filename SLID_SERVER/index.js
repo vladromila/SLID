@@ -15,6 +15,16 @@ firebase_admin.initializeApp({
     databaseURL: "https://slid-24099.firebaseio.com"
 });
 
+app.get("/addalbumsuser", (req, res, next) => {
+    firebase.auth().createUserWithEmailAndPassword(req.body.username + "@slid.com", req.body.password)
+        .then(() => {
+            res.status(200)
+        })
+        .catch(() => {
+            res.status(406)
+        })
+})
+
 app.get("/", (req, res, next) => {
     res.write("<h1>WELCOME TO THE SLID SERVER!</h1>")
     res.write("<h4>by RVA Media Products</h4>");
