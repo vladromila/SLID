@@ -3,7 +3,14 @@ let carousel = document.getElementById("carousel");
 let seats = document.querySelectorAll("ul > li");
 
 firebase.initializeApp(
-  //api key here
+  {
+    apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
+    authDomain: "slidalbums.firebaseapp.com",
+    databaseURL: "https://slidalbums.firebaseio.com",
+    projectId: "slidalbums",
+    storageBucket: "slidalbums.appspot.com",
+    messagingSenderId: "167009021016"
+  }
 )
 
 if (seats.length === 1)
@@ -73,10 +80,12 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
   document.addEventListener("keydown", (e) => {
     if (e.keyCode === 37)
       if (s.prevDisable === false)
-        s.goToPrev();
+        if (seats.length >= 2)
+          s.goToPrev();
     if (e.keyCode === 39)
       if (s.nextDisable === false)
-        s.goToNext();
+        if (seats.length >= 2)
+          s.goToNext();
   })
 
   carousel.addEventListener("touchstart", (e) => {
@@ -84,11 +93,12 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
     s.lastX = e.touches[0].clientX;
   })
   carousel.addEventListener("touchmove", (e) => {
-    album.scrollBy(s.lastX - e.touches[0].clientX, 0);
     s.lastX = e.touches[0].clientX;
+    carousel.style.transform = `translate3d(${-(s.startX - s.lastX)}px,0px,0px)`
   })
   carousel.addEventListener("touchend", (e) => {
-    s.goToNext();
+    if (seats.length >= 2)
+      s.goToNext();
   })
   /* carousel.addEventListener("touchstart", (e) => {
     s.startX = e.touches[0].clientX;
@@ -110,17 +120,22 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
     s.didTheTouchMove = false;
   }) */
 
+  function next(type, uid) {
+    if (type === "nextSlide") {
+      if (s.nextDisable === false) {
+        s.goToNext();
+      }
+    }
+    if (type === "previousSlide") {
+      if (s.prevDisable === false)
+        s.goToPrev();
+    }
+    firebase.database().ref(`/${album.getAttribute("link")}/controls/${uid}`).remove()
+  }
   firebase.database().ref(`/${album.getAttribute("link")}/controls`)
     .on("value", snapshot => {
       if (snapshot.val()) {
-        switch (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type) {
-          case "nextSlide":
-            firebase.database().ref(`/${album.getAttribute("link")}/controls/${Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]}`).remove()
-            return s.goToNext()
-          case "previousSlide":
-            firebase.database().ref(`/${album.getAttribute("link")}/controls/${Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]}`).remove()
-            return s.goToPrev()
-        }
+        next(snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type, Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1])
       }
     })
 }
