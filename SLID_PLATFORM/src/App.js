@@ -16,7 +16,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      user: 'notVerified',  
+      user: 'notVerified',
       albums: []
     }
   }
@@ -49,7 +49,14 @@ class App extends Component {
 
   componentWillMount() {
     firebase.initializeApp(
-      //add apikey here
+      {
+        apiKey: "AIzaSyBIluGjGo5SubXbV5AeIpt7cUKaqQwnPK4",
+        authDomain: "slid-24099.firebaseapp.com",
+        databaseURL: "https://slid-24099.firebaseio.com",
+        projectId: "slid-24099",
+        storageBucket: "slid-24099.appspot.com",
+        messagingSenderId: "336177522017"
+      }
     )
     firebase.auth().onAuthStateChanged(user => this.checUser(user))
   }

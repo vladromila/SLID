@@ -61,12 +61,16 @@ class DashBoard extends React.Component {
                                         <input id="album_name" type="text" class="validate" ref={newAlbumName => this.newAlbumName = newAlbumName} />
                                         <label for="album_name">Album Name</label>
                                     </div>
+                                    <div class="input-field col s12">
+                                        <input id="album_password" type="password" class="validate" ref={newAlbumPassword => this.newAlbumPassword = newAlbumPassword} />
+                                        <label for="album_password">Album Name</label>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="input-field col s12">
                                         <button class="btn waves-effect waves-light" type="submit" name="action"
                                             onClick={() => {
-                                                this.props.addAlbum({ name: this.newAlbumName.value, password: this.newAlbumName.value })
+                                                this.props.addAlbum({ name: this.newAlbumName.value, password: this.newAlbumPassword.value })
                                             }}
                                         >Submit
                     <i class="material-icons right">send</i>

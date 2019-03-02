@@ -6,7 +6,8 @@ export const addAlbum = ({ name, password }) => {
         dispatch({
             type: ADD_ALBUM_START
         })
-        fetch("https://slidserver.herokuapp.com/adduserandreturnuid",
+        console.log(name, password)
+        fetch("https://slidserver.herokuapp.com/addalbumsuser",
             {
                 method: "POST",
                 mode: "cors",
@@ -17,8 +18,8 @@ export const addAlbum = ({ name, password }) => {
                     'Access-Control-Allow-Origin': '*',
                 },
                 body: JSON.stringify({
-                    email: "romilavlad2003@gmail.com",
-                    password: "123123"
+                    username: name,
+                    password: password
                 })
             })
             .then(res =>
