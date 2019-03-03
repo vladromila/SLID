@@ -69,6 +69,14 @@ class AlbumEdit extends React.Component {
                                                                         name: res.name,
                                                                         link: res2.link
                                                                     })
+                                                                    .then(() => {
+                                                                        firebase.database().ref(`/albums/${this.props.param}/${res.id.split(":")[1]}`)
+                                                                            .set({
+                                                                                type: this.file.files[0].type.split("/")[1],
+                                                                                name: res.name,
+                                                                                link: res2.link
+                                                                            })
+                                                                    })
                                                             })
                                                     })
                                                     .catch((err) => {

@@ -1,6 +1,6 @@
 import { LOGIN_START, LOGIN_SUCCESS, LOGIN_FAIL } from "../actions/types";
 
-let INITIAL_STATE = { loading: false, error: '' };
+let INITIAL_STATE = { loading: false, error: '', loadingGithub: false, errorGithub: '' };
 export default (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case LOGIN_START:

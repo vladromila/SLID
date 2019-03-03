@@ -138,4 +138,27 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
         next(snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type, Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1])
       }
     })
+  fetch(`https://slidserver.herokuapp.com/getonlineresources`, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer Tlu3cIv70YAAAAAAAAAACBTX9s7_CeW03Bpp0PatWDvgqp2cmXrWA6gJ3h3hTDIP"
+    },
+    body: JSON.stringify({ uid: album.getAttribute("link") })
+  })
+    .then(res => res.json())
+    .then((res) => {
+      if (res.resources) {
+        res.resources.forEach(resource => {
+          let newLiCont = document.createElement("li");
+          newLiCont.classList = "container carousel-element";
+          let el = document.createElement("video");
+          el.src = resource.link;
+          newLiCont.appendChild(el)
+          carousel.appendChild(newLiCont);
+          seats = document.querySelectorAll("ul > li")
+          seats[seats.length-1].classList.add("is-ref");
+        })
+      }
+    })
 }

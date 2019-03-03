@@ -1,6 +1,8 @@
 import React from 'react';
 import firebase from 'firebase';
 import { Link } from 'react-router-dom'
+import { connect } from 'react-redux';
+import { loginWithGithub } from "../../actions/"
 
 class LoginPage extends React.Component {
     render() {
@@ -31,6 +33,12 @@ class LoginPage extends React.Component {
                             >Login
             <i className="material-icons right">send</i>
                             </button>
+                            <button className="btn waves-effect waves-light" name="action"
+                                onClick={() => {
+                                    this.props.loginWithGithub()
+                                }}
+                            >Login WITH GITHUB
+                            </button>
                         </div>
                         <div className="row">
                             <Link to="/register">
@@ -45,5 +53,8 @@ class LoginPage extends React.Component {
         )
     }
 }
-
-export default LoginPage;
+let mapStateToProps = state => {
+    const { loadingGithub } = state.Auth;
+    return { loading: true };
+}
+export default connect(mapStateToProps, { loginWithGithub })(LoginPage);
