@@ -138,6 +138,7 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
         next(snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type, Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1])
       }
     })
+    if(1==2)
   fetch(`https://slidserver.herokuapp.com/getonlineresources`, {
     method: 'POST',
     headers: {
