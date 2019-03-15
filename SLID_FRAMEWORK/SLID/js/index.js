@@ -2,16 +2,14 @@ let album = document.getElementById("album");
 let carousel = document.getElementById("carousel");
 let seats = document.querySelectorAll("ul > li");
 
-firebase.initializeApp(
-  {
-    apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
-    authDomain: "slidalbums.firebaseapp.com",
-    databaseURL: "https://slidalbums.firebaseio.com",
-    projectId: "slidalbums",
-    storageBucket: "slidalbums.appspot.com",
-    messagingSenderId: "167009021016"
-  }
-)
+firebase.initializeApp({
+  apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
+  authDomain: "slidalbums.firebaseapp.com",
+  databaseURL: "https://slidalbums.firebaseio.com",
+  projectId: "slidalbums",
+  storageBucket: "slidalbums.appspot.com",
+  messagingSenderId: "167009021016"
+})
 
 if (seats.length === 1)
   carousel.style.left = 0;
@@ -34,7 +32,8 @@ class SLID {
     new_seat = el.nextElementSibling || seats[0];
     new_seat.classList.add('is-ref');
     new_seat.style.order = 1;
-    for (i = j = 2, ref = seats.length; (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
+    for (i = j = 2, ref = seats.length;
+      (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
       new_seat = new_seat.nextElementSibling || seats[0];
       new_seat.style.order = i;
     }
@@ -44,8 +43,8 @@ class SLID {
     document.getElementById('carousel').addEventListener("transitionend", () => {
       this.nextDisable = false;
     }, {
-        once: true,
-      });
+      once: true,
+    });
     return setTimeout((function () {
       return carousel.classList.add('is-set');
     }), 50);
@@ -58,7 +57,8 @@ class SLID {
     new_seat = el.previousElementSibling || seats[seats.length - 1];
     new_seat.classList.add('is-ref');
     new_seat.style.order = 1;
-    for (i = j = 2, ref = seats.length; (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
+    for (i = j = 2, ref = seats.length;
+      (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
       new_seat = new_seat.nextElementSibling || seats[0];
       new_seat.style.order = i;
     }
@@ -68,8 +68,8 @@ class SLID {
     document.getElementById('carousel').addEventListener("transitionend", () => {
       this.prevDisable = false;
     }, {
-        once: true
-      });
+      once: true
+    });
     return setTimeout((function () {
       return carousel.classList.add('is-set');
     }), 50);
@@ -138,15 +138,17 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
         next(snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type, Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1])
       }
     })
-    if(1==2)
-  fetch(`https://slidserver.herokuapp.com/getonlineresources`, {
-    method: 'POST',
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer Tlu3cIv70YAAAAAAAAAACBTX9s7_CeW03Bpp0PatWDvgqp2cmXrWA6gJ3h3hTDIP"
-    },
-    body: JSON.stringify({ uid: album.getAttribute("link") })
-  })
+  if (1 == 2)
+    fetch(`https://slidserver.herokuapp.com/getonlineresources`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer Tlu3cIv70YAAAAAAAAAACBTX9s7_CeW03Bpp0PatWDvgqp2cmXrWA6gJ3h3hTDIP"
+      },
+      body: JSON.stringify({
+        uid: album.getAttribute("link")
+      })
+    })
     .then(res => res.json())
     .then((res) => {
       if (res.resources) {
@@ -158,7 +160,7 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
           newLiCont.appendChild(el)
           carousel.appendChild(newLiCont);
           seats = document.querySelectorAll("ul > li")
-          seats[seats.length-1].classList.add("is-ref");
+          seats[seats.length - 1].classList.add("is-ref");
         })
       }
     })

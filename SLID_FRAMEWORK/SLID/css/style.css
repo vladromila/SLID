@@ -29,11 +29,11 @@ body {
 }
 
 .carousel.toNext {
-  transform: translate3d(100%,0,0);
+  transform: translate3d(100%, 0, 0);
 }
 
 .carousel.toPrev {
-  transform: translate3d(-100%,0,0);
+  transform: translate3d(-100%, 0, 0);
 }
 
 .carousel.is-set {
@@ -53,7 +53,7 @@ body {
 }
 
 .carousel-element:nth-child(even) {
-  background:green;
+  /* background:green; */
 }
 
 .carousel-element.is-ref {
@@ -71,7 +71,8 @@ body {
   width: 100%;
 }
 
-.carousel-element >img, video {
+.carousel-element>img,
+video {
   position: absolute;
   top: 0;
   left: 0;
@@ -85,30 +86,29 @@ body {
 
 .left-arrow,
 .right-arrow {
-  height: 100%;
+  height: 15%;
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 40%;
   z-index: 1;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: center;
-  align-items: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   width: 15%;
-  color: #fff;
-  text-align: center;
-  opacity: .5;
-  transition: opacity .15s ease
+  opacity: 0.8;
+  transition: opacity .15s ease;
 }
 
 .left-arrow {
   left: 0;
-  background: red
+  background: url("../../assets/left-arrow.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
 }
 
 .right-arrow {
   right: 0;
-  background: blue;
+  background: url("../../assets/right-arrow.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
 }
