@@ -95,6 +95,7 @@ video {
   width: 15%;
   opacity: 0.8;
   transition: opacity .15s ease;
+  cursor: pointer;
 }
 
 .left-arrow {
