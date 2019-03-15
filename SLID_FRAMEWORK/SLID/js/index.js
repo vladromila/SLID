@@ -2,6 +2,15 @@ let album = document.getElementById("album");
 let carousel = document.getElementById("carousel");
 let seats = document.querySelectorAll("ul > li");
 
+let leftArrow = document.createElement("div")
+let rightArrow = document.createElement("div");
+leftArrow.id = "left-arrow";
+rightArrow.id = "right-arrow";
+leftArrow.classList = "left-arrow";
+rightArrow.classList = "right-arrow";
+album.appendChild(leftArrow);
+album.appendChild(rightArrow);
+
 firebase.initializeApp({
   apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
   authDomain: "slidalbums.firebaseapp.com",
@@ -43,8 +52,8 @@ class SLID {
     document.getElementById('carousel').addEventListener("transitionend", () => {
       this.nextDisable = false;
     }, {
-      once: true,
-    });
+        once: true,
+      });
     return setTimeout((function () {
       return carousel.classList.add('is-set');
     }), 50);
@@ -68,8 +77,8 @@ class SLID {
     document.getElementById('carousel').addEventListener("transitionend", () => {
       this.prevDisable = false;
     }, {
-      once: true
-    });
+        once: true
+      });
     return setTimeout((function () {
       return carousel.classList.add('is-set');
     }), 50);
@@ -90,18 +99,6 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
 
   carousel.addEventListener("touchstart", (e) => {
     s.startX = e.touches[0].clientX;
-    s.lastX = e.touches[0].clientX;
-  })
-  carousel.addEventListener("touchmove", (e) => {
-    s.lastX = e.touches[0].clientX;
-    carousel.style.transform = `translate3d(${-(s.startX - s.lastX)}px,0px,0px)`
-  })
-  carousel.addEventListener("touchend", (e) => {
-    if (seats.length >= 2)
-      s.goToNext();
-  })
-  /* carousel.addEventListener("touchstart", (e) => {
-    s.startX = e.touches[0].clientX;
   })
   carousel.addEventListener("touchmove", (e) => {
     let currentX = e.touches[0].clientX;
@@ -113,12 +110,21 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
       if (s.finalX > 0) {
         if (s.nextDisable === false)
           s.goToNext();
-      } 
+      }
       else
         if (s.prevDisable === false)
           s.goToPrev();
     s.didTheTouchMove = false;
-  }) */
+  })
+
+  leftArrow.addEventListener("click", () => {
+    if (seats.length > 1 && s.prevDisable === false)
+      s.goToPrev();
+  })
+  rightArrow.addEventListener("click", () => {
+    if (seats.length > 1 && s.nextDisable === false)
+      s.goToNext();
+  })
 
   function next(type, uid) {
     if (type === "nextSlide") {
@@ -149,19 +155,19 @@ if (document.getElementById("album").getAttribute('autoCall') === "true") {
         uid: album.getAttribute("link")
       })
     })
-    .then(res => res.json())
-    .then((res) => {
-      if (res.resources) {
-        res.resources.forEach(resource => {
-          let newLiCont = document.createElement("li");
-          newLiCont.classList = "container carousel-element";
-          let el = document.createElement("video");
-          el.src = resource.link;
-          newLiCont.appendChild(el)
-          carousel.appendChild(newLiCont);
-          seats = document.querySelectorAll("ul > li")
-          seats[seats.length - 1].classList.add("is-ref");
-        })
-      }
-    })
+      .then(res => res.json())
+      .then((res) => {
+        if (res.resources) {
+          res.resources.forEach(resource => {
+            let newLiCont = document.createElement("li");
+            newLiCont.classList = "container carousel-element";
+            let el = document.createElement("video");
+            el.src = resource.link;
+            newLiCont.appendChild(el)
+            carousel.appendChild(newLiCont);
+            seats = document.querySelectorAll("ul > li")
+            seats[seats.length - 1].classList.add("is-ref");
+          })
+        }
+      })
 }
