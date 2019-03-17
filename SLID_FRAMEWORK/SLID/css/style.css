@@ -113,3 +113,42 @@ video {
   background-size: contain;
   background-position: center;
 }
+
+.arrow-anim {
+  animation-name: arrow-anim;
+  -webkit-animation-name: arrow-anim;
+  animation-duration: 0.35s;
+  -webkit-animation-duration: 0.35s;
+  animation-fill-mode: forwards;
+  -webkit-animation-fill-mode: forwards;
+  animation-timing-function: linear;
+  -webkit-animation-timing-function: linear;
+}
+
+@keyframes arrow-anim {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@-webkit-keyframes arrow-anim {
+  0% {
+    -webkit-transform: scale(1);
+  }
+
+  50% {
+    -webkit-transform: scale(0.8);
+  }
+
+  100% {
+    -webkit-transform: scale(1);
+  }
+}
