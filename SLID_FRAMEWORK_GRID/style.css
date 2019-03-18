@@ -21,12 +21,11 @@ body {
     right: 0;
     bottom: 0;
     max-width: 100%;
-    max-height: 10em;
+    max-height: 100%;
     margin: auto;
 }
 
-.imagecont,
-.modalcont {
+.imagecont{
     position: relative;
     width: 100%;
     height: 10em;
@@ -81,15 +80,16 @@ body {
 
 .modal {
     position: absolute;
-    width: 30%;
-    height: 20%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%;
+    height: 30%;
     background: #bdc3c7;
     z-index: 100;
     visibility: hidden;
-    margin: auto;
     opacity: 0;
     transition: 0.5s ease-out;
-    transform: translateY(45px);
 }
 
 .active {
@@ -98,12 +98,13 @@ body {
 }
 
 .modalcont {
-    position: absolute;
+    position: relative;
+    width: 100%;
+    height: 100%;
     margin: auto;
 }
 
 .active+.modal {
     visibility: visible;
     opacity: 1;
-    transform: translateY(0);
 }
