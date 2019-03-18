@@ -11,20 +11,6 @@ rightArrow.classList = "right-arrow";
 album.appendChild(leftArrow);
 album.appendChild(rightArrow);
 
-rightArrow.addEventListener("click", () => {
-  rightArrow.classList.add("arrow-anim");
-  setTimeout(() => {
-    rightArrow.classList.remove("arrow-anim");
-  }, 350);
-});
-
-leftArrow.addEventListener("click", () => {
-  leftArrow.classList.add("arrow-anim");
-  setTimeout(() => {
-    leftArrow.classList.remove("arrow-anim");
-  }, 350);
-});
-
 firebase.initializeApp({
   apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
   authDomain: "slidalbums.firebaseapp.com",
@@ -54,6 +40,10 @@ class SLID {
     el.classList.remove('is-ref');
     new_seat = el.nextElementSibling || seats[0];
     new_seat.classList.add('is-ref');
+    rightArrow.classList.add("arrow-anim");
+    setTimeout(() => {
+      return rightArrow.classList.remove("arrow-anim");
+    }, 350)
     new_seat.style.order = 1;
     for (i = j = 2, ref = seats.length;
       (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
@@ -75,19 +65,29 @@ class SLID {
   goToPrev() {
     this.prevDisable = true;
     var el, i, j, new_seat, ref;
+    
     el = document.querySelector("ul > li.is-ref");
     el.classList.remove('is-ref');
+
     new_seat = el.previousElementSibling || seats[seats.length - 1];
     new_seat.classList.add('is-ref');
     new_seat.style.order = 1;
+
+    leftArrow.classList.add("arrow-anim");
+    setTimeout(() => {
+      return leftArrow.classList.remove("arrow-anim");
+    }, 350)
+
     for (i = j = 2, ref = seats.length;
       (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
       new_seat = new_seat.nextElementSibling || seats[0];
       new_seat.style.order = i;
     }
+
     carousel.classList.remove('toNext');
     carousel.classList.add('toPrev');
     carousel.classList.remove('is-set');
+
     document.getElementById('carousel').addEventListener("transitionend", () => {
       this.prevDisable = false;
     }, {
