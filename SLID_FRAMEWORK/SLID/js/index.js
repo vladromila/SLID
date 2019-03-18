@@ -38,26 +38,32 @@ class SLID {
     var el, i, j, new_seat, ref;
     el = document.querySelector("ul > li.is-ref");
     el.classList.remove('is-ref');
+
     new_seat = el.nextElementSibling || seats[0];
     new_seat.classList.add('is-ref');
+
     rightArrow.classList.add("arrow-anim");
     setTimeout(() => {
       return rightArrow.classList.remove("arrow-anim");
     }, 350)
     new_seat.style.order = 1;
+
     for (i = j = 2, ref = seats.length;
       (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
       new_seat = new_seat.nextElementSibling || seats[0];
       new_seat.style.order = i;
     }
+
     carousel.classList.remove('toPrev');
     carousel.classList.add('toNext');
     carousel.classList.remove('is-set');
+
     document.getElementById('carousel').addEventListener("transitionend", () => {
       this.nextDisable = false;
     }, {
         once: true,
       });
+      
     return setTimeout((function () {
       return carousel.classList.add('is-set');
     }), 50);
@@ -65,7 +71,7 @@ class SLID {
   goToPrev() {
     this.prevDisable = true;
     var el, i, j, new_seat, ref;
-    
+
     el = document.querySelector("ul > li.is-ref");
     el.classList.remove('is-ref');
 
