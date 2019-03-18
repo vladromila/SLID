@@ -20,7 +20,6 @@ imgClick = (event) => {
         source = c[1].getAttribute('src'); 
     }
     mask.classList.add("active");
-    console.log(source);
     modal.setAttribute("src", source);
 };
 

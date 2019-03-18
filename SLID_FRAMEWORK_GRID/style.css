@@ -13,7 +13,8 @@ body {
     padding: 5px;
 }
 
-.imagecont img, .modalcont img {
+.imagecont img,
+.modalcont img {
     position: absolute;
     top: 0;
     left: 0;
@@ -24,7 +25,8 @@ body {
     margin: auto;
 }
 
-.imagecont, .modalcont {
+.imagecont,
+.modalcont {
     position: relative;
     width: 100%;
     height: 10em;
@@ -73,27 +75,20 @@ body {
     background: rgba(30, 71, 67, 0.8);
     z-index: 50;
     visibility: hidden;
-
     opacity: 0;
-
     transition: 0.7s;
 }
 
 .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
+    position: absolute;
     width: 30%;
     height: 20%;
-    
     background: #bdc3c7;
     z-index: 100;
     visibility: hidden;
     margin: auto;
     opacity: 0;
-
     transition: 0.5s ease-out;
-
     transform: translateY(45px);
 }
 
@@ -103,7 +98,7 @@ body {
 }
 
 .modalcont {
-    position: relative;
+    position: absolute;
     margin: auto;
 }
 
