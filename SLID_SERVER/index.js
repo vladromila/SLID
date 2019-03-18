@@ -14,14 +14,31 @@ firebase_admin.initializeApp({
     credential: firebase_admin.credential.cert(JSON.parse(process.env.FIREBASE_ADMIN_CONFIG)),
     databaseURL: "https://slid-24099.firebaseio.com"
 });
-
-app.get("/addalbumsuser", (req, res, next) => {
+app.post("/getonlineresources/", (req, res, next) => {
+    firebase_admin.database().ref(`/albums/${req.body.uid}`)
+        .once("value", (snapshot) => {
+            if (snapshot.val()) {
+                let resources = [];
+                Object.keys(snapshot.val()).forEach(key => {
+                    resources.push(snapshot.val()[key])
+                })
+                res.send({ resources })
+            }
+            else
+                res.send({});
+        })
+})
+app.post("/addalbumsuser", (req, res, next) => {
     firebase.auth().createUserWithEmailAndPassword(req.body.username + "@slid.com", req.body.password)
-        .then(() => {
-            res.status(200)
+        .then((data, err) => {
+            if (err)
+                res.status(406)
+            res.status(200).send({ uid: data.user.uid });
+            res.end();
         })
         .catch(() => {
-            res.status(406)
+            res.status(406);
+            res.end();
         })
 })
 

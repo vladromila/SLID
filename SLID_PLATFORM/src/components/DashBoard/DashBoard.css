@@ -1,0 +1,24 @@
+.card-image img {
+    max-width: 100px;
+    object-fit: cover;
+}
+.card img.materialized.active {
+    max-height: none;
+    object-fit: none;
+}
+.modal-content > img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+}
+.modal-content > video {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+}
+.ctb{
+    background-color: black;
+    padding: 0 5px 5px 5px;
+}
