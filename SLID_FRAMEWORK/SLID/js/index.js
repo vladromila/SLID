@@ -11,6 +11,20 @@ rightArrow.classList = "right-arrow";
 album.appendChild(leftArrow);
 album.appendChild(rightArrow);
 
+rightArrow.addEventListener("click", () => {
+  rightArrow.classList.add("arrow-anim");
+  setTimeout(() => {
+    rightArrow.classList.remove("arrow-anim");
+  }, 350);
+});
+
+leftArrow.addEventListener("click", () => {
+  leftArrow.classList.add("arrow-anim");
+  setTimeout(() => {
+    leftArrow.classList.remove("arrow-anim");
+  }, 350);
+});
+
 firebase.initializeApp({
   apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
   authDomain: "slidalbums.firebaseapp.com",

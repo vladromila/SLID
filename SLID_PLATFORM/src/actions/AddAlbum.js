@@ -6,7 +6,6 @@ export const addAlbum = ({ name, password }) => {
         dispatch({
             type: ADD_ALBUM_START
         })
-        console.log(name, password)
         fetch("https://slidserver.herokuapp.com/addalbumsuser",
             {
                 method: "POST",
@@ -22,8 +21,16 @@ export const addAlbum = ({ name, password }) => {
                     password: password
                 })
             })
-            .then(res =>
-                res.json()
+            .catch(err => {
+                throw new Error("The album name will be used to create an email, so find a name that can be found in a valid email. Example: with the name 'vlad' the email created will be 'vlad@slid.com'")
+            })
+            .then(res => {
+                if (res.status === 406) {
+                    throw new Error("The album name will be used to create an email, so find a name that can be found in a valid email. Example: with the name 'vlad' the email created will be 'vlad@slid.com'");
+                }
+                else
+                    return res.json()
+            }
             )
             .then(res => {
                 firebase.database().ref(`/developers/${firebase.auth().currentUser.uid}/albums/${res.uid}`)
@@ -34,5 +41,6 @@ export const addAlbum = ({ name, password }) => {
                         })
                     })
             })
+            .catch(err => { alert(err) })
     }
-}
+}   

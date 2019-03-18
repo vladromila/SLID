@@ -1,101 +1,111 @@
 import React from 'react';
 import firebase from 'firebase';
-import Modal from 'react-modal';
+import { Modal, Button, Icon, Card, CardTitle, Row, Col, Preloader } from 'react-materialize'
+import "./AlbumEdit.css";
+import { Progress } from 'react-sweet-progress';
+import videoPng from "./video.png";
 class AlbumEdit extends React.Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
+        this.percentage = 0;
         this.state = {
-            modalVisible: false
+            modalVisible: false,
+            album: props.albums[props.param] || {}
         }
     }
     componentDidMount() {
         firebase.database().ref(`/developers/${firebase.auth().currentUser.uid}/albums/${this.props.param}`)
             .on("value", snapshot => {
-                console.log(snapshot.val())
+                if (snapshot.val())
+                    this.setState({ album: snapshot.val() })
             })
+    }
+    showTitle(name) {
+        let str;
+        let extra = "...";
+        if (name.length > 10) {
+            str = name.substring(0, 10);
+            str = str.concat(extra);
+        }
+        else
+            str = name;
+        return str;
+    }
+    checkPercentage(snapshot) {
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        this.percentage = progress;
+    }
+    addFile() {
+        let param = this.props.param;
+        let type = this.dataFiles.files[0].type.split("/")[0];
+        let inp = this.inp.value;
+        let name = this.dataFiles.files[0].name;
+        let uploadTask = firebase.storage().ref(`/developers/${firebase.auth().currentUser.uid}/${this.props.param}/${this.inp.value !== "" ? this.inp.value : this.dataFiles.files[0].name}`).put(this.dataFiles.files[0]);
+        uploadTask
+            .on(firebase.storage.TaskEvent.STATE_CHANGED,
+                snapshot => this.checkPercentage(snapshot),
+                function (error) {
+                    switch (error.code) {
+                        case 'storage/unauthorized':
+                            break;
+                        case 'storage/canceled':
+                            break;
+                        case 'storage/unknown':
+                            break;
+                    }
+                }, function () {
+                    uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+                        firebase.database().ref(`/developers/${firebase.auth().currentUser.uid}/albums/${param}/`)
+                            .push({ link: downloadURL, type, name: inp !== "" ? inp : name })
+                            .then(() => {
+                                firebase.database().ref(`/albums/${param}/`)
+                                    .push({ link: downloadURL, type, name: inp !== "" ? inp : name })
+                            })
+                    });
+                })
     }
     render() {
         return (
             <div>
-                <button class="btn waves-effect waves-light" type="submit" name="action"
-                    onClick={() => {
-                        this.setState({ modalVisible: true })
-                    }}
-                >Add a file</button>
+                <Row>
+                    {Object.keys(this.state.album).map((key, i) => {
+                        if (key !== "name")
+                            return <Modal
+                                trigger={
+                                    <Col key={i} s={12} m={4}>
+                                        <Card header={<React.Fragment>
+                                            <CardTitle image={this.state.album[key].type !== "image" ? videoPng : this.state.album[key].link} /></React.Fragment>}
+                                            title={this.showTitle(this.state.album[key].name)}
+                                            subtitle="Image"
+                                        >
+                                            <span class="card-title grey-text text-darken-4" style={{ fontSize: 16 }}>{this.state.album[key].type}</span>
+                                        </Card>
+                                    </Col>
+                                }
+                            >
+                                {this.state.album[key].type === "image" ? <img src={this.state.album[key].link} /> : this.state.album[key].type === "video" ? <video src={this.state.album[key].link} controls /> : null}
+                            </Modal>
+                    })}
+                </Row>
                 <Modal
-                    ariaHideApp={false}
-                    isOpen={this.state.modalVisible}
-                    contentLabel="Example Modal"
-                >
-                    <div class="container">
-                        <h1>Create a new <strong>SLID Album </strong>!</h1>
-                        <div class="row">
-                            <div class="col s12">
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <input id="file" type="file" class="validate" ref={file => this.file = file} />
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="input-field col s12">
-                                        <button class="btn waves-effect waves-light" type="submit" name="action"
-                                            onClick={() => {
-                                                fetch("https://content.dropboxapi.com/2/files/upload", {
-                                                    method: 'POST',
-                                                    headers: {
-                                                        "Content-Type": "application/octet-stream",
-                                                        "User-Agent": "api-explorer-client",
-                                                        "Authorization": "Bearer Tlu3cIv70YAAAAAAAAAACBTX9s7_CeW03Bpp0PatWDvgqp2cmXrWA6gJ3h3hTDIP",
-                                                        "Dropbox-API-Arg": JSON.stringify({ "path": `/${this.props.param}/${this.file.files[0].name}` }),
-                                                        'Content-Length': this.file.files[0].size
-                                                    },
-                                                    body: this.file.files[0]
-                                                })
-                                                    .then(res => res.json())
-                                                    .then((res) => {
-                                                        fetch("https://api.dropboxapi.com/2/files/get_temporary_link", {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                "Content-Type": "application/json",
-                                                                "Authorization": "Bearer Tlu3cIv70YAAAAAAAAAACBTX9s7_CeW03Bpp0PatWDvgqp2cmXrWA6gJ3h3hTDIP"
-                                                            },
-                                                            body: JSON.stringify({ "path": `/${this.props.param}/${this.file.files[0].name}` })
-                                                        })
-                                                            .then((res1) => res1.json())
-                                                            .then((res2) => {
-                                                                firebase.database().ref(`/developers/${firebase.auth().currentUser.uid}/albums/${this.props.param}/${res.id.split(":")[1]}`)
-                                                                    .set({
-                                                                        type: this.file.files[0].type.split("/")[1],
-                                                                        name: res.name,
-                                                                        link: res2.link
-                                                                    })
-                                                                    .then(() => {
-                                                                        firebase.database().ref(`/albums/${this.props.param}/${res.id.split(":")[1]}`)
-                                                                            .set({
-                                                                                type: this.file.files[0].type.split("/")[1],
-                                                                                name: res.name,
-                                                                                link: res2.link
-                                                                            })
-                                                                    })
-                                                            })
-                                                    })
-                                                    .catch((err) => {
-                                                        console.log(err);
-                                                    })
-                                            }}
-                                        >Submit
-                    <i class="material-icons right">send</i>
-                                        </button>
-                                        <button class="btn waves-effect waves-light"
-                                            onClick={() => {
-                                                this.setState({ modalVisible: false })
-                                            }}
-                                        >Cancel</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    header='Modal Header'
+                    trigger={<Button>Add a file<Icon right>insert_chart</Icon></Button>}>
+                    <Row>
+                        <Progress
+                            type="circle"
+                            percent={this.percentage}
+                        />
+                        <br />
+                        <br />
+                    </Row>
+                    <input type="file" ref={files => this.dataFiles = files}></input>
+                    <input ref={inp => this.inp = inp}></input>
+                    <button
+                        onClick={() => {
+                            this.addFile();
+                        }}
+                    >Done</button>
                 </Modal>
             </div>
         )
