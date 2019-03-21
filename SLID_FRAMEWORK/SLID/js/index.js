@@ -1,193 +1,202 @@
-let album = document.getElementById("album");
-let carousel = document.getElementById("carousel");
-let seats = document.querySelectorAll("ul > li");
+let albums = document.querySelectorAll('.album');
+function loadJSON(callback) {
 
-let leftArrow = document.createElement("div")
-let rightArrow = document.createElement("div");
-leftArrow.id = "left-arrow";
-rightArrow.id = "right-arrow";
-leftArrow.classList = "left-arrow";
-rightArrow.classList = "right-arrow";
-album.appendChild(leftArrow);
-album.appendChild(rightArrow);
+  var xobj = new XMLHttpRequest();
+  xobj.overrideMimeType("application/json");
+  xobj.open('GET', 'importantfiles/setupData.json', true);
+  xobj.onreadystatechange = function () {
+    if (xobj.readyState == 4 && xobj.status == "200") {
+      callback(xobj.responseText);
+    }
+  };
+  xobj.send(null);
+}
 
-firebase.initializeApp({
-  apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
-  authDomain: "slidalbums.firebaseapp.com",
-  databaseURL: "https://slidalbums.firebaseio.com",
-  projectId: "slidalbums",
-  storageBucket: "slidalbums.appspot.com",
-  messagingSenderId: "167009021016"
-})
+loadJSON(function (response) {
+  console.log(JSON.parse(response));
+});
 
-if (seats.length === 1)
-  carousel.style.left = 0;
+class Slid {
+  constructor({ album }) {
 
-class SLID {
-  constructor() {
-    this.nextDisable = false;
-    this.prevDisable = false;
+    this.album = album;
+    this.children = album.children
+    this.carousel = {};
+    this.responsive = this.album.attributes.responsive.value
+
+    //VARIABLES
+    //Slide counter for translate3D logic
+    this.elementIndex = 0;
+
+    //Variable that saves the x coordonate of the initial drag event
     this.startX = 0;
-    this.finalX = 0;
-    this.lastX = 0;
-    this.didTheTouchMove = false;
+
+    //Drag helper variables
+    this.dragLeft = false;
+
+    //Spam blockers variables
+    this.nextDisable = false;
+    this.previousDisable = false;
+
+    //Drag Functions
+    this.dragStart = this.dragStart.bind(this);
+    this.dragOver = this.dragOver.bind(this);
+    this.dragEnd = this.dragEnd.bind(this);
+
+    //CLI,CloudControl or Arrows functions
+    this.goNext = this.goNext.bind(this);
+    this.goPrev = this.goPrev.bind(this);
+
+    //Position check handlers
+    this.checkEnd = this.checkEnd.bind(this);
+
+    //eventListeners handlers
+    this.transitionBeginningHandler = this.transitionBeginningHandler.bind(this);
+    this.transitionEndHandler = this.transitionEndHandler.bind(this);
+
+    //Slide next/previous allow functions
+    this.previousEnable = this.previousEnable.bind(this);
+    this.nextEnable = this.nextEnable.bind(this);
+
+    //Window resize handler
+    this.windowResizeHandler = this.windowResizeHandler.bind(this);
   }
 
-  goToNext() {
-    this.nextDisable = true;
-    var el, i, j, new_seat, ref;
-    el = document.querySelector("ul > li.is-ref");
-    el.classList.remove('is-ref');
-
-    new_seat = el.nextElementSibling || seats[0];
-    new_seat.classList.add('is-ref');
-
-    rightArrow.classList.add("arrow-anim");
-    setTimeout(() => {
-      return rightArrow.classList.remove("arrow-anim");
-    }, 350)
-    new_seat.style.order = 1;
-
-    for (i = j = 2, ref = seats.length;
-      (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
-      new_seat = new_seat.nextElementSibling || seats[0];
-      new_seat.style.order = i;
-    }
-
-    carousel.classList.remove('toPrev');
-    carousel.classList.add('toNext');
-    carousel.classList.remove('is-set');
-
-    document.getElementById('carousel').addEventListener("transitionend", () => {
-      this.nextDisable = false;
-    }, {
-        once: true,
-      });
-      
-    return setTimeout((function () {
-      return carousel.classList.add('is-set');
-    }), 50);
+  dragStart(e) {
+    this.startX = e.clientX;
   }
-  goToPrev() {
-    this.prevDisable = true;
-    var el, i, j, new_seat, ref;
-
-    el = document.querySelector("ul > li.is-ref");
-    el.classList.remove('is-ref');
-
-    new_seat = el.previousElementSibling || seats[seats.length - 1];
-    new_seat.classList.add('is-ref');
-    new_seat.style.order = 1;
-
-    leftArrow.classList.add("arrow-anim");
-    setTimeout(() => {
-      return leftArrow.classList.remove("arrow-anim");
-    }, 350)
-
-    for (i = j = 2, ref = seats.length;
-      (2 <= ref ? j <= ref : j >= ref); i = 2 <= ref ? ++j : --j) {
-      new_seat = new_seat.nextElementSibling || seats[0];
-      new_seat.style.order = i;
-    }
-
-    carousel.classList.remove('toNext');
-    carousel.classList.add('toPrev');
-    carousel.classList.remove('is-set');
-
-    document.getElementById('carousel').addEventListener("transitionend", () => {
-      this.prevDisable = false;
-    }, {
-        once: true
-      });
-    return setTimeout((function () {
-      return carousel.classList.add('is-set');
-    }), 50);
+  dragOver(e) {
+    e.preventDefault();
+    this.carousel.style.transition = "none 0s ease 0s"
+    this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width - (this.startX - e.clientX)}px,0,0)`;
   }
-}
-if (document.getElementById("album").getAttribute('autoCall') === "true") {
-  let s = new SLID();
-  document.addEventListener("keydown", (e) => {
-    if (e.keyCode === 37)
-      if (s.prevDisable === false)
-        if (seats.length >= 2)
-          s.goToPrev();
-    if (e.keyCode === 39)
-      if (s.nextDisable === false)
-        if (seats.length >= 2)
-          s.goToNext();
-  })
-
-  carousel.addEventListener("touchstart", (e) => {
-    s.startX = e.touches[0].clientX;
-  })
-  carousel.addEventListener("touchmove", (e) => {
-    let currentX = e.touches[0].clientX;
-    s.finalX = s.startX - currentX;
-    s.didTheTouchMove = true;
-  })
-  carousel.addEventListener("touchend", (e) => {
-    if (s.didTheTouchMove === true)
-      if (s.finalX > 0) {
-        if (s.nextDisable === false)
-          s.goToNext();
-      }
+  dragEnd(e) {
+    if (this.dragLeft === false) {
+      this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
+      if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
+        if (this.startX - e.clientX > 0)
+          this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+        else
+          this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
       else
-        if (s.prevDisable === false)
-          s.goToPrev();
-    s.didTheTouchMove = false;
-  })
-
-  leftArrow.addEventListener("click", () => {
-    if (seats.length > 1 && s.prevDisable === false)
-      s.goToPrev();
-  })
-  rightArrow.addEventListener("click", () => {
-    if (seats.length > 1 && s.nextDisable === false)
-      s.goToNext();
-  })
-
-  function next(type, uid) {
-    if (type === "nextSlide") {
-      if (s.nextDisable === false) {
-        s.goToNext();
-      }
+        this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+      this.checkStart();
+      this.checkEnd();
     }
-    if (type === "previousSlide") {
-      if (s.prevDisable === false)
-        s.goToPrev();
+    else {
+      this.dragLeft = false
     }
-    firebase.database().ref(`/${album.getAttribute("link")}/controls/${uid}`).remove()
   }
-  firebase.database().ref(`/${album.getAttribute("link")}/controls`)
-    .on("value", snapshot => {
-      if (snapshot.val()) {
-        next(snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type, Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1])
+
+  checkStart() {
+    if (this.elementIndex === -1) {
+      this.previousDisable = true;
+      this.carousel.addEventListener("transitionend", this.transitionBeginningHandler)
+    }
+    else {
+      this.carousel.addEventListener("transitionend", this.previousEnable)
+    }
+  }
+  checkEnd() {
+    if (this.elementIndex === this.children.length - 2) {
+      this.nextDisable = true;
+      this.carousel.addEventListener("transitionend", this.transitionEndHandler)
+    }
+    else {
+      this.carousel.addEventListener("transitionend", this.nextEnable)
+    }
+  }
+
+  transitionBeginningHandler() {
+    this.carousel.style.transition = "none 0s ease 0s"
+    this.carousel.style.transform = `translate3d(${-(this.children.length - 3) * this.album.getBoundingClientRect().width}px, 0px, 0px)`
+    this.elementIndex = this.children.length - 3;
+    this.previousDisable = false;
+    this.carousel.removeEventListener("transitionend", this.transitionBeginningHandler);
+  }
+  transitionEndHandler() {
+    this.carousel.style.transition = "none 0s ease 0s"
+    this.carousel.style.transform = `translate3d(0px, 0px, 0px)`
+    this.elementIndex = 0;
+    this.nextDisable = false;
+    this.carousel.removeEventListener("transitionend", this.transitionEndHandler);
+  }
+
+  previousEnable() {
+    this.previousDisable = false
+  }
+  nextEnable() {
+    this.nextDisable = false
+  }
+
+  goPrev() {
+    if (this.previousDisable === false) {
+      this.carousel.style.transition = "transform 0.5s cubic-bezier(0.215, 0.610, 0.355, 1)"
+      this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
+      this.checkStart();
+    }
+  }
+  goNext() {
+    if (this.nextDisable === false) {
+      this.nextDisable = true;
+      this.carousel.style.transition = "transform 0.5s cubic-bezier(0.215, 0.610, 0.355, 1)"
+      this.carousel.style.transform = `translate3d(${-(++this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
+      this.checkEnd();
+    }
+  }
+
+  windowResizeHandler() {
+    this.responsive.forEach(bp => {
+      console.log(bp)
+      if (window.matchMedia(`(min-width: ${bp.width}px)`).matches) {
+        this.album.style.width = bp.style.width;
       }
     })
-  if (1 == 2)
-    fetch(`https://slidserver.herokuapp.com/getonlineresources`, {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer Tlu3cIv70YAAAAAAAAAACBTX9s7_CeW03Bpp0PatWDvgqp2cmXrWA6gJ3h3hTDIP"
-      },
-      body: JSON.stringify({
-        uid: album.getAttribute("link")
-      })
+
+  }
+
+  setUp() {
+    let carousel = document.createElement("div");
+    carousel.classList = "carousel";
+
+    let arr = Array.prototype.slice.call(this.children);
+
+    let firstDuplicate = arr[0].cloneNode(true);
+    let finalDuplicate = arr[arr.length - 1].cloneNode(true);
+
+    arr.unshift(finalDuplicate);
+    arr.push(firstDuplicate);
+
+    arr.forEach((el, i) => {
+      let carouselElement = document.createElement("div");
+      carouselElement.className = `carousel-element ${i}`;
+      carouselElement.appendChild(el);
+      carousel.appendChild(carouselElement);
     })
-      .then(res => res.json())
-      .then((res) => {
-        if (res.resources) {
-          res.resources.forEach(resource => {
-            let newLiCont = document.createElement("li");
-            newLiCont.classList = "container carousel-element";
-            let el = document.createElement("video");
-            el.src = resource.link;
-            newLiCont.appendChild(el)
-            carousel.appendChild(newLiCont);
-            seats = document.querySelectorAll("ul > li")
-            seats[seats.length - 1].classList.add("is-ref");
-          })
-        }
-      })
+
+    this.album.appendChild(carousel);
+    this.carousel = carousel;
+    this.carousel.draggable = true;
+    this.children = carousel.childNodes;
+    this.carousel.addEventListener("dragstart", this.dragStart);
+    this.carousel.addEventListener("dragover", this.dragOver);
+    this.carousel.addEventListener("dragend", this.dragEnd);
+
+    let leftArrow = document.createElement("div");
+    leftArrow.classList.add("left-arrow");
+    let rightArrow = document.createElement("div");
+    rightArrow.classList.add("right-arrow");
+    this.album.appendChild(leftArrow);
+    this.album.appendChild(rightArrow);
+    rightArrow.onclick = this.goNext;
+    leftArrow.onclick = this.goPrev;
+
+    window.addEventListener("resize", this.windowResizeHandler);
+    console.log(this.album.attributes.responsive.value);
+  }
 }
+
+albums.forEach((alb, i) => {
+  let s = new Slid({ album: alb });
+  s.setUp();
+})

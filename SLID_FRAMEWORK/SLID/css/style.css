@@ -12,7 +12,7 @@ body {
 .album {
   overflow: hidden;
   width: 50%;
-  height: 50%;
+  height: 100%;
   margin: auto;
   position: relative;
 }
@@ -20,25 +20,11 @@ body {
 .carousel {
   height: 100%;
   width: 100%;
+  left:-100%;
   display: flex;
-  left: -100%;
-  list-style: none;
   margin: 0;
   padding: 0;
   position: relative;
-}
-
-.carousel.toNext {
-  transform: translate3d(100%, 0, 0);
-}
-
-.carousel.toPrev {
-  transform: translate3d(-100%, 0, 0);
-}
-
-.carousel.is-set {
-  transform: none;
-  transition: transform 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
 }
 
 .carousel-element {
@@ -47,28 +33,14 @@ body {
   text-align: center;
   order: 2;
   position: relative;
-  height: 100% !important;
+  margin: 0 auto;
+  height: 100%;
+  width: 100%;
   max-width: 100% !important;
   padding: 0;
 }
 
-.carousel-element.is-ref {
-  order: 1;
-}
-
-.controls {
-  padding: 2em;
-  text-align: center;
-}
-
-.container {
-  margin: 0 auto;
-  height: 100%;
-  width: 100%;
-}
-
-.carousel-element>img,
-video {
+.carousel-element> img, video {
   position: absolute;
   top: 0;
   left: 0;
@@ -84,7 +56,7 @@ video {
 .right-arrow {
   height: 15%;
   position: absolute;
-  top: 40%;
+  top: 42.5%;
   z-index: 1;
   display: -ms-flexbox;
   display: flex;
