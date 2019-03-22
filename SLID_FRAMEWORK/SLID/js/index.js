@@ -20,6 +20,7 @@ class Slid {
   constructor(
     { album,
       id,
+      responsive,
       autoSlide,
       autoSlideTime,
       autoSlideHoverPause,
@@ -35,13 +36,16 @@ class Slid {
     this.album = album;
     this.children = album.children
     this.carousel = {};
+    this.leftArrow = null;
+    this.rightArrow = null;
     this.responsive = this.album.attributes.responsive.value
     this.animations = ["-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)"]
 
     //SLID Variables
     this.id = id || null;
-    this.autoSlide = autoSlide || false;
-    this.autoSlideTime = autoSlideTime || 5000;
+    this.responsive = responsive || [];
+    this.autoSlide = autoSlide || true;
+    this.autoSlideTime = autoSlideTime || 1000;
     this.autoSlideHoverPause = autoSlideHoverPause || true;
     this.dragEnabled = dragEnabled || true;
     this.showArrows = showArrows || false;
@@ -99,6 +103,8 @@ class Slid {
 
   dragStart(e) {
     this.startX = e.clientX;
+    this.leftArrow.style.display = "none";
+    this.rightArrow.style.display = "none";
   }
   dragOver(e) {
     e.preventDefault();
@@ -106,21 +112,18 @@ class Slid {
     this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width - (this.startX - e.clientX)}px,0,0)`;
   }
   dragEnd(e) {
-    if (this.dragLeft === false) {
-      this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
-      if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
-        if (this.startX - e.clientX > 0)
-          this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
-        else
-          this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
+    this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
+    if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
+      if (this.startX - e.clientX > 0)
+        this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
       else
-        this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
-      this.checkStart();
-      this.checkEnd();
-    }
-    else {
-      this.dragLeft = false
-    }
+        this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
+    else
+      this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+    this.checkStart();
+    this.checkEnd();
+    this.leftArrow.style.display = "";
+    this.rightArrow.style.display = "";
   }
 
   checkStart() {
@@ -143,14 +146,14 @@ class Slid {
   }
 
   transitionBeginningHandler() {
-    this.carousel.style.transition = "none 0s ease 0s"
+    this.carousel.style.transition = "none"
     this.carousel.style.transform = `translate3d(${-(this.children.length - 3) * this.album.getBoundingClientRect().width}px, 0px, 0px)`
     this.elementIndex = this.children.length - 3;
     this.previousDisable = false;
     this.carousel.removeEventListener("transitionend", this.transitionBeginningHandler);
   }
   transitionEndHandler() {
-    this.carousel.style.transition = "none 0s ease 0s"
+    this.carousel.style.transition = "none"
     this.carousel.style.transform = `translate3d(0px, 0px, 0px)`
     this.elementIndex = 0;
     this.nextDisable = false;
@@ -182,11 +185,14 @@ class Slid {
   }
 
   windowResizeHandler() {
+    console.log("medve e prea priost smm");
     this.responsive.forEach(bp => {
       if (window.matchMedia(`(min-width: ${bp.width}px)`).matches) {
         this.album.style.width = bp.style.width;
       }
     })
+    this.carousel.style.transition = "none 0s ease 0s"
+    this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px, 0px, 0px)`;
   }
 
   autoSlideHandler() {
@@ -238,8 +244,12 @@ class Slid {
       leftArrow.classList.add("left-arrow");
       let rightArrow = document.createElement("div");
       rightArrow.classList.add("right-arrow");
+
       this.album.appendChild(leftArrow);
       this.album.appendChild(rightArrow);
+      this.rightArrow = rightArrow;
+      this.leftArrow = leftArrow;
+
       rightArrow.onclick = this.goNext;
       leftArrow.onclick = this.goPrev;
       if (this.autoSlide === true && this.autoSlideHoverPause === true) {

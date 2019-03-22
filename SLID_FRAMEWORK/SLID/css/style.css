@@ -10,6 +10,7 @@ body {
 }
 
 .album {
+  background-color: red;
   overflow: hidden;
   width: 50%;
   height: 50%;
@@ -28,7 +29,6 @@ body {
 }
 
 .carousel-element {
-  background: #ddd;
   flex: 1 0 100%;
   text-align: center;
   order: 2;
