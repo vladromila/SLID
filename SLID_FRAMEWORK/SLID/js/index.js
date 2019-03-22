@@ -1,9 +1,18 @@
 let albums = document.querySelectorAll('.album');
+let firebaseApp=document.createElement("script");
+let firebaseDatabase=document.createElement("script");
+
+firebaseApp.src="https://www.gstatic.com/firebasejs/5.8.2/firebase-app.js";
+firebaseDatabase.src="https://www.gstatic.com/firebasejs/5.8.2/firebase-database.js";
+
+document.body.append(firebaseApp);
+document.body.append(firebaseDatabase);
+
 function loadJSON(callback) {
 
   var xobj = new XMLHttpRequest();
   xobj.overrideMimeType("application/json");
-  xobj.open('GET', 'setupData.json', true);
+  xobj.open('GET', document.getElementById("setupData").attributes.src.value, true);
   xobj.onreadystatechange = function () {
     if (xobj.readyState == 4 && xobj.status == "200") {
       callback(xobj.responseText);
@@ -13,7 +22,7 @@ function loadJSON(callback) {
 }
 
 loadJSON(function (response) {
-  console.log(response);
+  console.log(JSON.parse(response));
 });
 
 class Slid {
@@ -54,7 +63,7 @@ class Slid {
     this.cloudControlEnabled = cloudControlEnabled || false;
     this.cliControlEnabled = cliControlEnabled || false;
     this.voiceControlEnabled = voiceControlEnabled || false;
-    this.platformControlEnabled = platformControlEnabled;
+    this.platformControlEnabled = platformControlEnabled||true;
 
 
     //VARIABLES
@@ -103,8 +112,6 @@ class Slid {
 
   dragStart(e) {
     this.startX = e.clientX;
-    this.leftArrow.style.display = "none";
-    this.rightArrow.style.display = "none";
   }
   dragOver(e) {
     e.preventDefault();
@@ -239,7 +246,7 @@ class Slid {
       this.carousel.addEventListener("dragend", this.dragEnd);
     }
 
-    if (this.showArrows === false) {
+    if (this.showArrows === true) {
       let leftArrow = document.createElement("div");
       leftArrow.classList.add("left-arrow");
       let rightArrow = document.createElement("div");
@@ -269,9 +276,19 @@ class Slid {
 
     window.addEventListener("resize", this.windowResizeHandler);
   }
+  start(){
+    if(this.voiceControlEnabled===true||this.cliControlEnabled===true||this.cloudControlEnabled===true||this.platformControlEnabled===true)
+    {
+      firebaseApp.onload=()=>{
+        firebaseDatabase.onload=()=>{
+          this.setUp();
+        }
+      }
+    }
+  }
 }
 
 albums.forEach((alb, i) => {
   let s = new Slid({ album: alb });
-  s.setUp();
+  s.start();
 })
