@@ -3,7 +3,7 @@ function loadJSON(callback) {
 
   var xobj = new XMLHttpRequest();
   xobj.overrideMimeType("application/json");
-  xobj.open('GET', 'importantfiles/setupData.json', true);
+  xobj.open('GET', 'setupData.json', true);
   xobj.onreadystatechange = function () {
     if (xobj.readyState == 4 && xobj.status == "200") {
       callback(xobj.responseText);
@@ -13,18 +13,49 @@ function loadJSON(callback) {
 }
 
 loadJSON(function (response) {
-  console.log(JSON.parse(response));
+  console.log(response);
 });
 
 class Slid {
-  constructor({ album }) {
-
+  constructor(
+    { album,
+      id,
+      autoSlide,
+      autoSlideTime,
+      autoSlideHoverPause,
+      dragEnabled,
+      showArrows,
+      animationNumber,
+      customTransition,
+      cloudControlEnabled,
+      cliControlEnabled,
+      voiceControlEnabled,
+      platformControlEnabled
+    }) {
     this.album = album;
     this.children = album.children
     this.carousel = {};
     this.responsive = this.album.attributes.responsive.value
+    this.animations = ["-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)"]
+
+    //SLID Variables
+    this.id = id || null;
+    this.autoSlide = autoSlide || false;
+    this.autoSlideTime = autoSlideTime || 5000;
+    this.autoSlideHoverPause = autoSlideHoverPause || true;
+    this.dragEnabled = dragEnabled || true;
+    this.showArrows = showArrows || false;
+    this.animationNumber = animationNumber || 1;
+    this.customTransition = customTransition || null;
+    this.cloudControlEnabled = cloudControlEnabled || false;
+    this.cliControlEnabled = cliControlEnabled || false;
+    this.voiceControlEnabled = voiceControlEnabled || false;
+    this.platformControlEnabled = platformControlEnabled;
+
 
     //VARIABLES
+    //setTimeout variables
+    this.autoSlideTimer = null;
     //Slide counter for translate3D logic
     this.elementIndex = 0;
 
@@ -57,6 +88,10 @@ class Slid {
     //Slide next/previous allow functions
     this.previousEnable = this.previousEnable.bind(this);
     this.nextEnable = this.nextEnable.bind(this);
+
+    //AutoSlide handlers
+    this.carouselMouseOver = this.carouselMouseOver.bind(this);
+    this.carouselMouseLeave = this.carouselMouseLeave.bind(this);
 
     //Window resize handler
     this.windowResizeHandler = this.windowResizeHandler.bind(this);
@@ -131,7 +166,8 @@ class Slid {
 
   goPrev() {
     if (this.previousDisable === false) {
-      this.carousel.style.transition = "transform 0.5s cubic-bezier(0.215, 0.610, 0.355, 1)"
+      this.previousDisable = true;
+      this.carousel.style.transition = this.animations[this.animationNumber - 1];
       this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
       this.checkStart();
     }
@@ -139,7 +175,7 @@ class Slid {
   goNext() {
     if (this.nextDisable === false) {
       this.nextDisable = true;
-      this.carousel.style.transition = "transform 0.5s cubic-bezier(0.215, 0.610, 0.355, 1)"
+      this.carousel.style.transition = this.animations[this.animationNumber - 1];
       this.carousel.style.transform = `translate3d(${-(++this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
       this.checkEnd();
     }
@@ -147,12 +183,24 @@ class Slid {
 
   windowResizeHandler() {
     this.responsive.forEach(bp => {
-      console.log(bp)
       if (window.matchMedia(`(min-width: ${bp.width}px)`).matches) {
         this.album.style.width = bp.style.width;
       }
     })
+  }
 
+  autoSlideHandler() {
+    this.autoSlideTimer = setTimeout(() => {
+      this.goNext();
+      this.autoSlideHandler();
+    }, this.autoSlideTime)
+  }
+
+  carouselMouseOver() {
+    clearTimeout(this.autoSlideTimer)
+  }
+  carouselMouseLeave() {
+    this.autoSlideHandler();
   }
 
   setUp() {
@@ -178,21 +226,38 @@ class Slid {
     this.carousel = carousel;
     this.carousel.draggable = true;
     this.children = carousel.childNodes;
-    this.carousel.addEventListener("dragstart", this.dragStart);
-    this.carousel.addEventListener("dragover", this.dragOver);
-    this.carousel.addEventListener("dragend", this.dragEnd);
 
-    let leftArrow = document.createElement("div");
-    leftArrow.classList.add("left-arrow");
-    let rightArrow = document.createElement("div");
-    rightArrow.classList.add("right-arrow");
-    this.album.appendChild(leftArrow);
-    this.album.appendChild(rightArrow);
-    rightArrow.onclick = this.goNext;
-    leftArrow.onclick = this.goPrev;
+    if (this.dragEnabled === true) {
+      this.carousel.addEventListener("dragstart", this.dragStart);
+      this.carousel.addEventListener("dragover", this.dragOver);
+      this.carousel.addEventListener("dragend", this.dragEnd);
+    }
+
+    if (this.showArrows === false) {
+      let leftArrow = document.createElement("div");
+      leftArrow.classList.add("left-arrow");
+      let rightArrow = document.createElement("div");
+      rightArrow.classList.add("right-arrow");
+      this.album.appendChild(leftArrow);
+      this.album.appendChild(rightArrow);
+      rightArrow.onclick = this.goNext;
+      leftArrow.onclick = this.goPrev;
+      if (this.autoSlide === true && this.autoSlideHoverPause === true) {
+        rightArrow.onmouseover = this.carouselMouseOver;
+        rightArrow.onmouseleave = this.carouselMouseLeave;
+        leftArrow.onmouseover = this.carouselMouseOver;
+        leftArrow.onmouseleave = this.carouselMouseLeave
+      }
+    }
+    if (this.autoSlide === true) {
+      if (this.autoSlideHoverPause === true) {
+        this.album.onmouseover = this.carouselMouseOver;
+        this.album.onmouseleave = this.carouselMouseLeave;
+      }
+      this.autoSlideHandler();
+    }
 
     window.addEventListener("resize", this.windowResizeHandler);
-    console.log(this.album.attributes.responsive.value);
   }
 }
 

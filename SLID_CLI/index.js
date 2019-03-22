@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-const program = require("commander");
-const express = require("express");
-const bodyParser = require("body-parser");
-const opn = require("opn");
+const program = require("commander")
 const firebase = require("firebase");
 const fs = require("fs");
 var readlineSync = require('readline-sync');
@@ -15,14 +12,22 @@ firebase.initializeApp({
     storageBucket: "slidalbums.appspot.com",
     messagingSenderId: "167009021016"
 })
-let app = express();
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.get("/", (req, res, next) => {
-    res.render("index.html");
-})
+const getCommand = () => {
+    let command = readlineSync.question("Command:");
+    if (command.toLowerCase() === "next" || command.toLowerCase() === "next slide" || command.toLowerCase().indexOf("next") > -1)
+        firebase.database().ref(`${firebase.auth().currentUser.uid}/controls`)
+            .push({ type: "nextSlide" })
+    else
+        if (command.toLowerCase() === "previous" || command.toLowerCase() === "previous slide" || command.toLowerCase() === "prev" || command.toLowerCase().indexOf("previous") > -1)
+            firebase.database().ref(`${firebase.auth().currentUser.uid}/controls`)
+                .push({ type: "previousSlide" })
+}
+const startCommand = () => {
+    if (readlineSync.keyInYN('Do you want to start entering commands?') === true) {
+        getCommand();
+    }
+}
 const login = () => {
     var email = readlineSync.question('Album Email: ');
     var password = readlineSync.question('Album password: ');
@@ -33,13 +38,7 @@ const login = () => {
                 if (err) {
                     return console.log(err);
                 }
-
-                if (readlineSync.keyInYN('User has been saved. Do you want to start the server?') === true) {
-                    app.listen(5100, () => {
-                        console.log("The slid server has already started");
-                        opn("http://localhost:5100");
-                    })
-                }
+                startCommand();
             })
         })
         .catch(() => {
@@ -63,10 +62,7 @@ program
             else {
                 firebase.auth().signInWithEmailAndPassword(JSON.parse(data).email, JSON.parse(data).password)
                     .then(() => {
-                        app.listen(5100, () => {
-                            console.log("The slid server has already starterd");
-                            opn("http://localhost:5100");
-                        })
+                        startCommand();
                     })
                     .catch(() => {
                         console.log("The credentials you have previously entered are now invalid.")
