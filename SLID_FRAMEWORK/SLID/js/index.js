@@ -1,12 +1,10 @@
-let albums = document.querySelectorAll('.album');
-let firebaseApp=document.createElement("script");
-let firebaseDatabase=document.createElement("script");
+let firebaseApp = document.createElement("script");
+firebaseApp.src = "https://www.gstatic.com/firebasejs/5.8.2/firebase-app.js";
+document.getElementById("SLIDScript").parentElement.insertBefore(firebaseApp, document.getElementById("SLIDScript"));
+let firebaseDatabase = document.createElement("script");
+firebaseDatabase.src = "https://www.gstatic.com/firebasejs/5.8.2/firebase-database.js";
+document.getElementById("SLIDScript").parentElement.insertBefore(firebaseDatabase, document.getElementById("SLIDScript"));
 
-firebaseApp.src="https://www.gstatic.com/firebasejs/5.8.2/firebase-app.js";
-firebaseDatabase.src="https://www.gstatic.com/firebasejs/5.8.2/firebase-database.js";
-
-document.body.append(firebaseApp);
-document.body.append(firebaseDatabase);
 
 function loadJSON(callback) {
 
@@ -29,6 +27,7 @@ class Slid {
   constructor(
     { album,
       id,
+      index,
       responsive,
       autoSlide,
       autoSlideTime,
@@ -47,23 +46,24 @@ class Slid {
     this.carousel = {};
     this.leftArrow = null;
     this.rightArrow = null;
-    this.responsive = this.album.attributes.responsive.value
+    this.responsive = [];
     this.animations = ["-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)"]
 
     //SLID Variables
-    this.id = id || null;
+    this.id = id || "1mILdKuZZRbICLqw2IprhtmqO9g2";
+    this.index = index;
     this.responsive = responsive || [];
-    this.autoSlide = autoSlide || true;
+    this.autoSlide = autoSlide || false;
     this.autoSlideTime = autoSlideTime || 1000;
     this.autoSlideHoverPause = autoSlideHoverPause || true;
     this.dragEnabled = dragEnabled || true;
-    this.showArrows = showArrows || false;
+    this.showArrows = showArrows || true;
     this.animationNumber = animationNumber || 1;
     this.customTransition = customTransition || null;
-    this.cloudControlEnabled = cloudControlEnabled || false;
+    this.cloudControlEnabled = cloudControlEnabled || true;
     this.cliControlEnabled = cliControlEnabled || false;
     this.voiceControlEnabled = voiceControlEnabled || false;
-    this.platformControlEnabled = platformControlEnabled||true;
+    this.platformControlEnabled = platformControlEnabled || false;
 
 
     //VARIABLES
@@ -85,6 +85,7 @@ class Slid {
     //Drag Functions
     this.dragStart = this.dragStart.bind(this);
     this.dragOver = this.dragOver.bind(this);
+    this.dragLeave = this.dragLeave.bind(this);
     this.dragEnd = this.dragEnd.bind(this);
 
     //CLI,CloudControl or Arrows functions
@@ -108,29 +109,65 @@ class Slid {
 
     //Window resize handler
     this.windowResizeHandler = this.windowResizeHandler.bind(this);
+
+    //Control functions
+    this.handleFirebaseControl = this.handleFirebaseControl.bind(this);
   }
 
   dragStart(e) {
+    if (this.showArrows === true) {
+      this.leftArrow.style.display = "none";
+      this.rightArrow.style.display = "none";
+    }
     this.startX = e.clientX;
   }
   dragOver(e) {
+    clearTimeout(this.autoSlideTimer);
     e.preventDefault();
     this.carousel.style.transition = "none 0s ease 0s"
     this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width - (this.startX - e.clientX)}px,0,0)`;
   }
-  dragEnd(e) {
-    this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
-    if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
-      if (this.startX - e.clientX > 0)
-        this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+  dragLeave(e) {
+    if (this.dragLeft === false) {
+      this.dragLeft = true;
+      this.carousel.removeEventListener("dragover", this.dragOver);
+      this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
+      if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
+        if (this.startX - e.clientX > 0)
+          this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+        else
+          this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
       else
-        this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
-    else
-      this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
-    this.checkStart();
-    this.checkEnd();
-    this.leftArrow.style.display = "";
-    this.rightArrow.style.display = "";
+        this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+      this.checkStart();
+      this.checkEnd();
+      if (this.showArrows === true) {
+        this.leftArrow.style.display = "";
+        this.rightArrow.style.display = "";
+      }
+    }
+  }
+  dragEnd(e) {
+    if (this.dragLeft === false) {
+      this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
+      if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
+        if (this.startX - e.clientX > 0)
+          this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+        else
+          this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
+      else
+        this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+      this.checkStart();
+      this.checkEnd();
+      if (this.showArrows === true) {
+        this.leftArrow.style.display = "";
+        this.rightArrow.style.display = "";
+      }
+    }
+    else {
+      this.dragLeft = false;
+      this.carousel.addEventListener("dragover", this.dragOver);
+    }
   }
 
   checkStart() {
@@ -192,7 +229,6 @@ class Slid {
   }
 
   windowResizeHandler() {
-    console.log("medve e prea priost smm");
     this.responsive.forEach(bp => {
       if (window.matchMedia(`(min-width: ${bp.width}px)`).matches) {
         this.album.style.width = bp.style.width;
@@ -214,6 +250,21 @@ class Slid {
   }
   carouselMouseLeave() {
     this.autoSlideHandler();
+  }
+
+  handleFirebaseControl() {
+    firebase.database().ref(`/${this.id}/controls/`)
+      .on("value", snapshot => {
+        if (snapshot.val()) {
+          if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
+            this.goNext();
+          }
+          else
+            if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
+              this.goPrev();
+            }
+        }
+      })
   }
 
   setUp() {
@@ -243,6 +294,7 @@ class Slid {
     if (this.dragEnabled === true) {
       this.carousel.addEventListener("dragstart", this.dragStart);
       this.carousel.addEventListener("dragover", this.dragOver);
+      this.carousel.addEventListener("dragleave", this.dragLeave);
       this.carousel.addEventListener("dragend", this.dragEnd);
     }
 
@@ -275,20 +327,28 @@ class Slid {
     }
 
     window.addEventListener("resize", this.windowResizeHandler);
+
+    if (this.cliControlEnabled === true || this.cloudControlEnabled === true || this.platformControlEnabled === true)
+      this.handleFirebaseControl();
   }
-  start(){
-    if(this.voiceControlEnabled===true||this.cliControlEnabled===true||this.cloudControlEnabled===true||this.platformControlEnabled===true)
-    {
-      firebaseApp.onload=()=>{
-        firebaseDatabase.onload=()=>{
-          this.setUp();
-        }
-      }
-    }
+  start() {
+    this.setUp();
   }
 }
 
-albums.forEach((alb, i) => {
-  let s = new Slid({ album: alb });
-  s.start();
-})
+firebaseApp.onload = async () => {
+  firebase.initializeApp({
+    apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
+    authDomain: "slidalbums.firebaseapp.com",
+    databaseURL: "https://slidalbums.firebaseio.com",
+    projectId: "slidalbums",
+    storageBucket: "slidalbums.appspot.com",
+    messagingSenderId: "167009021016"
+  })
+  firebaseDatabase.onload = async () => {
+    document.querySelectorAll(".album").forEach(album => {
+      let s = new Slid({ album: album });
+      s.start();
+    })
+  }
+}

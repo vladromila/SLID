@@ -18,10 +18,16 @@ const getCommand = () => {
     if (command.toLowerCase() === "next" || command.toLowerCase() === "next slide" || command.toLowerCase().indexOf("next") > -1)
         firebase.database().ref(`${firebase.auth().currentUser.uid}/controls`)
             .push({ type: "nextSlide" })
+            .then(()=>{
+                getCommand();
+            })
     else
         if (command.toLowerCase() === "previous" || command.toLowerCase() === "previous slide" || command.toLowerCase() === "prev" || command.toLowerCase().indexOf("previous") > -1)
             firebase.database().ref(`${firebase.auth().currentUser.uid}/controls`)
                 .push({ type: "previousSlide" })
+                .then(()=>{
+                    getCommand();
+                })
 }
 const startCommand = () => {
     if (readlineSync.keyInYN('Do you want to start entering commands?') === true) {

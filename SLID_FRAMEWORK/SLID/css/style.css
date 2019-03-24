@@ -10,7 +10,7 @@ body {
 }
 
 .album {
-  background-color: red;
+  background-color: #ddd;
   overflow: hidden;
   width: 50%;
   height: 50%;
