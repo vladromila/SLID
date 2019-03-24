@@ -253,18 +253,6 @@ class Slid {
   }
 
   handleFirebaseControl() {
-    firebase.database().ref(`/${this.id}/controls/`)
-      .on("value", snapshot => {
-        if (snapshot.val()) {
-          if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
-            this.goNext();
-          }
-          else
-            if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
-              this.goPrev();
-            }
-        }
-      })
   }
 
   setUp() {
@@ -292,10 +280,10 @@ class Slid {
     this.children = carousel.childNodes;
 
     if (this.dragEnabled === true) {
-      this.carousel.addEventListener("dragstart", this.dragStart);
-      this.carousel.addEventListener("dragover", this.dragOver);
-      this.carousel.addEventListener("dragleave", this.dragLeave);
-      this.carousel.addEventListener("dragend", this.dragEnd);
+      this.album.addEventListener("dragstart", this.dragStart);
+      this.album.addEventListener("dragover", this.dragOver);
+      this.album.addEventListener("dragleave", this.dragLeave);
+      this.album.addEventListener("dragend", this.dragEnd);
     }
 
     if (this.showArrows === true) {
@@ -337,14 +325,6 @@ class Slid {
 }
 
 firebaseApp.onload = async () => {
-  firebase.initializeApp({
-    apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
-    authDomain: "slidalbums.firebaseapp.com",
-    databaseURL: "https://slidalbums.firebaseio.com",
-    projectId: "slidalbums",
-    storageBucket: "slidalbums.appspot.com",
-    messagingSenderId: "167009021016"
-  })
   firebaseDatabase.onload = async () => {
     document.querySelectorAll(".album").forEach(album => {
       let s = new Slid({ album: album });
