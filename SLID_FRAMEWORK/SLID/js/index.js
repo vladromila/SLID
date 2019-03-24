@@ -288,7 +288,6 @@ class Slid {
 
     this.album.appendChild(carousel);
     this.carousel = carousel;
-    this.carousel.draggable = true;
     this.children = carousel.childNodes;
 
     if (this.dragEnabled === true) {
