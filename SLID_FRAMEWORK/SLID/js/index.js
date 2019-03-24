@@ -253,6 +253,18 @@ class Slid {
   }
 
   handleFirebaseControl() {
+    firebase.database().ref(`/${this.id}/controls/`)
+      .on("value", snapshot => {
+        if (snapshot.val()) {
+          if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
+            this.goNext();
+          }
+          else
+            if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
+              this.goPrev();
+            }
+        }
+      })
   }
 
   setUp() {
@@ -280,10 +292,10 @@ class Slid {
     this.children = carousel.childNodes;
 
     if (this.dragEnabled === true) {
-      this.album.addEventListener("dragstart", this.dragStart);
-      this.album.addEventListener("dragover", this.dragOver);
-      this.album.addEventListener("dragleave", this.dragLeave);
-      this.album.addEventListener("dragend", this.dragEnd);
+      this.carousel.addEventListener("dragstart", this.dragStart);
+      this.carousel.addEventListener("dragover", this.dragOver);
+      this.carousel.addEventListener("dragleave", this.dragLeave);
+      this.carousel.addEventListener("dragend", this.dragEnd);
     }
 
     if (this.showArrows === true) {
