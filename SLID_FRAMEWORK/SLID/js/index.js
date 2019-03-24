@@ -115,6 +115,10 @@ class Slid {
   }
 
   dragStart(e) {
+    console.log("dragstart");
+    e.dataTransfer.setData("text/plain", "Text to drag");
+    let img = new Image();
+    e.dataTransfer.setDragImage(img, 0, 0);
     if (this.showArrows === true) {
       this.leftArrow.style.display = "none";
       this.rightArrow.style.display = "none";
@@ -122,28 +126,31 @@ class Slid {
     this.startX = e.clientX;
   }
   dragOver(e) {
-    clearTimeout(this.autoSlideTimer);
     e.preventDefault();
     this.carousel.style.transition = "none 0s ease 0s"
     this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width - (this.startX - e.clientX)}px,0,0)`;
   }
   dragLeave(e) {
     if (this.dragLeft === false) {
-      this.dragLeft = true;
-      this.carousel.removeEventListener("dragover", this.dragOver);
-      this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
-      if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
-        if (this.startX - e.clientX > 0)
-          this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+      let rect = this.album.getBoundingClientRect();
+      if (e.x >= rect.left + rect.width || e.x <= rect.left
+        || e.y >= rect.top + rect.height || e.y <= rect.top) {
+        this.dragLeft = true;
+        this.carousel.removeEventListener("dragover", this.dragOver);
+        this.carousel.style.transition = `-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)`
+        if (Math.abs(this.startX - e.clientX) >= this.album.getBoundingClientRect().width / 6)
+          if (this.startX - e.clientX > 0)
+            this.carousel.style.transform = `translate3d(${-++this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+          else
+            this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
         else
-          this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
-      else
-        this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
-      this.checkStart();
-      this.checkEnd();
-      if (this.showArrows === true) {
-        this.leftArrow.style.display = "";
-        this.rightArrow.style.display = "";
+          this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px,0,0)`;
+        this.checkStart();
+        this.checkEnd();
+        if (this.showArrows === true) {
+          this.leftArrow.style.display = "";
+          this.rightArrow.style.display = "";
+        }
       }
     }
   }
@@ -198,7 +205,7 @@ class Slid {
   }
   transitionEndHandler() {
     this.carousel.style.transition = "none"
-    this.carousel.style.transform = `translate3d(0px, 0px, 0px)`
+    this.carousel.style.transform = `translate3d(0, 0, 0)`
     this.elementIndex = 0;
     this.nextDisable = false;
     this.carousel.removeEventListener("transitionend", this.transitionEndHandler);
@@ -282,12 +289,15 @@ class Slid {
     arr.forEach((el, i) => {
       let carouselElement = document.createElement("div");
       carouselElement.className = `carousel-element ${i}`;
+      el.draggable = false;
       carouselElement.appendChild(el);
+      carouselElement.draggable = false;
       carousel.appendChild(carouselElement);
     })
 
     this.album.appendChild(carousel);
     this.carousel = carousel;
+    this.carousel.draggable = true;
     this.children = carousel.childNodes;
 
     if (this.dragEnabled === true) {
@@ -327,8 +337,8 @@ class Slid {
 
     window.addEventListener("resize", this.windowResizeHandler);
 
-    if (this.cliControlEnabled === true || this.cloudControlEnabled === true || this.platformControlEnabled === true)
-      this.handleFirebaseControl();
+    /* if (this.cliControlEnabled === true || this.cloudControlEnabled === true || this.platformControlEnabled === true)
+      this.handleFirebaseControl(); */
   }
   start() {
     this.setUp();
@@ -336,9 +346,17 @@ class Slid {
 }
 
 firebaseApp.onload = async () => {
+  firebase.initializeApp({
+    apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
+    authDomain: "slidalbums.firebaseapp.com",
+    databaseURL: "https://slidalbums.firebaseio.com",
+    projectId: "slidalbums",
+    storageBucket: "slidalbums.appspot.com",
+    messagingSenderId: "167009021016"
+  })
   firebaseDatabase.onload = async () => {
-    document.querySelectorAll(".album").forEach(album => {
-      let s = new Slid({ album: album });
+    document.querySelectorAll(".album").forEach((album, i) => {
+      let s = new Slid({ album: album, index: i });
       s.start();
     })
   }

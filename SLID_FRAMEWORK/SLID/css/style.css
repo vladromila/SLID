@@ -12,8 +12,8 @@ body {
 .album {
   background-color: #ddd;
   overflow: hidden;
-  width: 50%;
-  height: 50%;
+  width: 100%;
+  height: 100%;
   margin: auto;
   position: relative;
 }
@@ -50,6 +50,9 @@ body {
   max-height: 100%;
   margin: auto;
   padding: 0 !important;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .left-arrow,
