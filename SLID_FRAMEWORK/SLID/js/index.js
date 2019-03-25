@@ -112,10 +112,13 @@ class Slid {
 
     //Control functions
     this.handleFirebaseControl = this.handleFirebaseControl.bind(this);
+
+    //arrowListener handler and variable
+    this.isArrowControlEnaled = false;
+    this.arrowListener = this.arrowListener.bind(this);
   }
 
   dragStart(e) {
-    console.log("dragstart");
     e.dataTransfer.setData("text/plain", "Text to drag");
     let img = new Image();
     e.dataTransfer.setDragImage(img, 0, 0);
@@ -197,9 +200,11 @@ class Slid {
   }
 
   transitionBeginningHandler() {
-    this.carousel.style.transition = "none"
-    this.carousel.style.transform = `translate3d(${-(this.children.length - 3) * this.album.getBoundingClientRect().width}px, 0px, 0px)`
-    this.elementIndex = this.children.length - 3;
+    if (this.elementIndex === -1) {
+      this.carousel.style.transition = "none"
+      this.carousel.style.transform = `translate3d(${-(this.children.length - 3) * this.album.getBoundingClientRect().width}px, 0px, 0px)`
+      this.elementIndex = this.children.length - 3;
+    }
     this.previousDisable = false;
     this.carousel.removeEventListener("transitionend", this.transitionBeginningHandler);
   }
@@ -253,10 +258,14 @@ class Slid {
   }
 
   carouselMouseOver() {
-    clearTimeout(this.autoSlideTimer)
+    this.isArrowControlEnaled = true;
+    if (this.autoSlideHoverPause === true && this.autoSlide === true)
+      clearTimeout(this.autoSlideTimer)
   }
   carouselMouseLeave() {
-    this.autoSlideHandler();
+    this.isArrowControlEnaled = false;
+    if (this.autoSlideHoverPause === true && this.autoSlide === true)
+      this.autoSlideHandler();
   }
 
   handleFirebaseControl() {
@@ -274,6 +283,14 @@ class Slid {
       })
   }
 
+  arrowListener(e) {
+    if (this.isArrowControlEnaled === true) {
+      if (e.keyCode === 37)
+        this.goPrev();
+      if (e.keyCode === 39)
+        this.goNext();
+    }
+  }
   setUp() {
     let carousel = document.createElement("div");
     carousel.classList = "carousel";
@@ -327,18 +344,17 @@ class Slid {
         leftArrow.onmouseleave = this.carouselMouseLeave
       }
     }
+    this.album.onmouseover = this.carouselMouseOver;
+    this.album.onmouseleave = this.carouselMouseLeave;
     if (this.autoSlide === true) {
-      if (this.autoSlideHoverPause === true) {
-        this.album.onmouseover = this.carouselMouseOver;
-        this.album.onmouseleave = this.carouselMouseLeave;
-      }
       this.autoSlideHandler();
     }
 
     window.addEventListener("resize", this.windowResizeHandler);
+    window.addEventListener("keydown", this.arrowListener);
 
-    /* if (this.cliControlEnabled === true || this.cloudControlEnabled === true || this.platformControlEnabled === true)
-      this.handleFirebaseControl(); */
+    if (this.cliControlEnabled === true || this.cloudControlEnabled === true || this.platformControlEnabled === true)
+      this.handleFirebaseControl();
   }
   start() {
     this.setUp();
