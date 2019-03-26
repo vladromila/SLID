@@ -41,6 +41,21 @@ app.post("/addalbumsuser", (req, res, next) => {
             res.end();
         })
 })
+app.post("/deletealbumuser", (req, res, next) => {
+    console.log(req.body.username, req.body.password)
+    firebase.auth().signInWithEmailAndPassword(req.body.username + "@slid.com", req.body.password)
+        .then((data, err) => {
+            firebase.auth().currentUser.delete()
+                .then(() => {
+                    res.status(200).send({ uid: data.user.uid });
+                    res.end();
+                })
+        })
+        .catch(() => {
+            res.status(406);
+            res.end();
+        })
+})
 
 app.get("/", (req, res, next) => {
     res.write("<h1>WELCOME TO THE SLID SERVER!</h1>")
