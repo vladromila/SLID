@@ -119,7 +119,7 @@ class Slid {
   }
 
   dragStart(e) {
-    e.dataTransfer.setData("text/plain", "Text to drag");
+    e.dataTransfer.setData("text/url", "slid.com");
     let img = new Image();
     e.dataTransfer.setDragImage(img, 0, 0);
     if (this.showArrows === true) {
@@ -320,7 +320,7 @@ class Slid {
     if (this.dragEnabled === true) {
       this.carousel.addEventListener("dragstart", this.dragStart);
       this.carousel.addEventListener("dragover", this.dragOver);
-      this.carousel.addEventListener("dragleave", this.dragLeave);
+      this.album.addEventListener("dragleave", this.dragLeave);
       this.carousel.addEventListener("dragend", this.dragEnd);
     }
 

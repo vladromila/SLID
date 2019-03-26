@@ -8,9 +8,9 @@ import PrivateRoute from './config/PrivateRoute';
 import firebase from 'firebase';
 import DashBoard from './components/DashBoard/DashBoard';
 import LoginPage from './components/Authentication/LoginPage';
-import M from "materialize-css/dist/js/materialize.min.js";
 import RegisterPage from './components/Authentication/RegisterPage';
 import AlbumEdit from './components/AlbumEdit/AlbumEdit';
+import logo from './slid-logo.png';
 
 class App extends Component {
   constructor() {
@@ -37,15 +37,6 @@ class App extends Component {
     else
       this.setState({ user: null })
   }
-  componentDidMount() {
-    var elem = document.querySelector(".sidenav");
-    var instance = M.Sidenav.init(elem, {
-      edge: "left",
-      inDuration: 250
-    });
-
-  }
-
 
   componentWillMount() {
     firebase.initializeApp(
@@ -68,7 +59,7 @@ class App extends Component {
             <React.Fragment>
               <nav>
                 <div className="nav-wrapper teal lighten-2">
-                  <Link className="brand-logo" to="/"><i className="material-icons">cloud</i>SLID</Link>
+                  <Link className="brand-logo" to="/"><img src={logo} style={{height:"60px"}} /></Link>
                   <ul className="right hide-on-med-and-down">
                     {this.state.user === 'notVerified' ? null : this.state.user ?
                       <React.Fragment>

@@ -42,7 +42,6 @@ app.post("/addalbumsuser", (req, res, next) => {
         })
 })
 app.post("/deletealbumuser", (req, res, next) => {
-    console.log(req.body.username, req.body.password)
     firebase.auth().signInWithEmailAndPassword(req.body.username + "@slid.com", req.body.password)
         .then((data, err) => {
             firebase.auth().currentUser.delete()

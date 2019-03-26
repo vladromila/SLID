@@ -21,9 +21,6 @@ export const addAlbum = ({ name, password }) => {
                     password: password
                 })
             })
-            .catch(err => {
-                throw new Error("The album name will be used to create an email, so find a name that can be found in a valid email. Example: with the name 'vlad' the email created will be 'vlad@slid.com'")
-            })
             .then(res => {
                 if (res.status === 406) {
                     throw new Error("The album name will be used to create an email, so find a name that can be found in a valid email. Example: with the name 'vlad' the email created will be 'vlad@slid.com'");
