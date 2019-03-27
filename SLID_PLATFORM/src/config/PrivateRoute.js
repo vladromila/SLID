@@ -13,7 +13,7 @@ const PrivateRoute = ({ component: Component, path, type, user, albums }) => {
                 else
                     if (type === "dashboard")
                         if (user !== null)
-                            return <Component albums={albums} param={props.match.params.handle} />
+                            return <Component albums={albums} param={props.match.params.handle} {...props}/>
                         else
                             return <Redirect to="/login" />
                     else

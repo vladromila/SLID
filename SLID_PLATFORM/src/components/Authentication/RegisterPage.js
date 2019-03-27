@@ -8,31 +8,30 @@ class RegisterPage extends React.Component {
             <div class="container">
                 <h1>Register</h1>
                 <div class="row">
-                    <form class="col s12">
+                    <div class="col s12">
                         <div class="row">
                             <div class="input-field col s12">
                                 <i class="material-icons prefix">email</i>
-                                <input id="email" type="email" class="validate" />
+                                <input id="email" type="email" class="validate" ref={email => this.email = email} />
                                 <label for="email">Email</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s12">
                                 <i class="material-icons prefix">vpn_key</i>
-                                <input id="password" type="password" class="validate" />
+                                <input id="password" type="password" ref={password => this.password = password} />
                                 <label for="password">Password</label>
-                                <span class="helper-text" data-error="wrong" data-success="right">Set a password with more than 8 characters including <strong>uppercase letters (A-Z)</strong>, <strong>lowercase letters (a-z)</strong> and <strong>numbers (0-9)</strong>.</span>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="input-field col s12">
-                                <i class="material-icons prefix">vpn_key</i>
-                                <input id="password" type="password" class="validate" />
-                                <label for="password">Confrim Password</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <button class="btn waves-effect waves-light" type="submit" name="action">Register
+                            <button class="btn waves-effect waves-light"
+                                onClick={() => {
+                                    firebase.auth().createUserWithEmailAndPassword(this.email.value, this.password.value)
+                                        .catch((e) => {
+                                            alert(e.message);
+                                        })
+                                }}
+                            >Register
                     <i class="material-icons right">send</i>
                             </button>
                         </div>
@@ -43,7 +42,7 @@ class RegisterPage extends React.Component {
                                 </button>
                             </Link>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         )

@@ -50,7 +50,8 @@ app.post("/deletealbumuser", (req, res, next) => {
                     res.end();
                 })
         })
-        .catch(() => {
+        .catch((e) => {
+            console.log(e.message)
             res.status(406);
             res.end();
         })

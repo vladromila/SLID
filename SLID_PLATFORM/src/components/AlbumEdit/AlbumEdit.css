@@ -6,13 +6,7 @@
     max-height: none;
     object-fit: none;
 }
-.modal-content > img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 75%;
-}
-.modal-content > video {
+.modal-content > img, video, audio {
     display: block;
     margin-left: auto;
     margin-right: auto;

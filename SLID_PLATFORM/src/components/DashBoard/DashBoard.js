@@ -4,6 +4,7 @@ import { addAlbum, fetchAlbums, deleteAlbum, deleteModalPop } from '../../action
 import { Link } from 'react-router-dom'
 import { Modal, Button, Icon } from 'react-materialize'
 import firebase from 'firebase';
+import Breadcrumb from 'react-materialize/lib/Breadcrumb';
 class DashBoard extends React.Component {
 
     constructor() {
@@ -104,118 +105,125 @@ class DashBoard extends React.Component {
     }
     render() {
         return (
-            <div className="row">
-                <div className="col s12 m4" onClick={() => {
-                    this.setState({ modalVisible: !this.state.modalVisible })
-                }}>
-                    <div className="card">
-                        <div className="card-content">
-                            <span className="card-title center large"><strong>+</strong></span>
-                        </div>
-                        <div className="card-action center">
-                            <a style={{ cursor: "pointer" }}>Add album</a>
+            <React.Fragment>
+                <Breadcrumb className="teal lighten-2">
+                    <Link to="/">
+                        Dashboard
+</Link>
+                </Breadcrumb>
+                <div className="row">
+                    <div className="col s12 m4" onClick={() => {
+                        this.setState({ modalVisible: !this.state.modalVisible })
+                    }}>
+                        <div className="card">
+                            <div className="card-content">
+                                <span className="card-title center large"><strong>+</strong></span>
+                            </div>
+                            <div className="card-action center">
+                                <a style={{ cursor: "pointer" }}>Add album</a>
+                            </div>
                         </div>
                     </div>
+                    {
+                        this.props.albums.map((album, i) => {
+                            return <div key={i} className="col s12 m4">
+                                <div className="card">
+                                    <div className="card-content">
+                                        <span className="card-title">{album.name}</span>
+                                    </div>
+                                    <div className="card-action">
+                                        <Link to={`/album/${album.uid}`}>Edit</Link>
+                                        <a style={{ cursor: "pointer" }} onClick={() => {
+                                            this.setState({ toDeleteAlbum: album, deleteModalVisible: true })
+                                        }}>Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        })
+                    }
+                    <Modal
+                        modalOptions={{ dismissible: false }}
+                        open={this.state.deleteModalVisible}
+                        actions={
+                            <Button modal="close" className="red darken-2" onClick={() => {
+                                this.setState({ deleteModalVisible: false })
+                            }}><Icon left>delete</Icon>Close</Button>
+                        }
+                    >
+                        <div className="container">
+                            <h4>Delete the <strong>{this.state.toDeleteAlbum.name}</strong> album!</h4>
+                            <h6>In order to delete it, please provide the password of the album!</h6>
+                            <div className="row">
+                                <div className="col s12">
+                                    <div className="row">
+                                        <div className="input-field col s12">
+                                            <input id="delete_album_password" type="password" className="validate" ref={toDeleteAlbumPassword => this.toDeleteAlbumPassword = toDeleteAlbumPassword} />
+                                            <label htmlFor="delete_album_password">Album Password</label>
+                                        </div>
+                                    </div>
+                                    <div className="row">
+                                        <div className="input-field col s12">
+                                            <button className="btn" type="submit" name="action"
+                                                onClick={() => {
+                                                    this.deleteAlbumHandler({ name: this.state.toDeleteAlbum.name, password: this.toDeleteAlbumPassword.value })
+                                                }}
+                                            >Submit
+                    <i className="material-icons right">send</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal>
+                    <Modal
+                        modalOptions={{ dismissible: false }}
+                        open={this.state.modalVisible}
+                        actions={
+                            <Button modal="close" className="red darken-2" onClick={() => {
+                                this.setState({ modalVisible: false })
+                            }}><Icon left>delete</Icon>Close</Button>
+                        }
+                    >
+                        <div className="container">
+                            <h1>Create a new <strong>SLID Album </strong>!</h1>
+                            <div className="row">
+                                <div className="col s12">
+                                    <div className="row">
+                                        <div className="input-field col s12">
+                                            <input id="album_name" type="text" className="validate" ref={newAlbumName => this.newAlbumName = newAlbumName} />
+                                            <label htmlFor="album_name">Album Name</label>
+                                        </div>
+                                        <div className="input-field col s12">
+                                            <input id="album_password" type="password" className="validate" ref={newAlbumPassword => this.newAlbumPassword = newAlbumPassword} />
+                                            <label htmlFor="album_password">Album Password</label>
+                                        </div>
+                                    </div>
+                                    <div className="row">
+                                        <div className="input-field col s12">
+                                            <button className="btn waves-light" type="submit" name="action"
+                                                onClick={() => {
+                                                    let ok = true;
+                                                    this.props.albums.forEach(album => {
+                                                        if (album.name.toLowerCase() === this.newAlbumName.value.toLowerCase())
+                                                            ok = false
+                                                    })
+                                                    if (ok === true)
+                                                        this.addAlbumHandler({ name: this.newAlbumName.value, password: this.newAlbumPassword.value })
+                                                    else
+                                                        alert("You already have an album with this name.")
+                                                }}
+                                            >Add
+                    <i className="material-icons right">send</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal>
                 </div>
-                {
-                    this.props.albums.map((album, i) => {
-                        return <div key={i} className="col s12 m4">
-                            <div className="card">
-                                <div className="card-content">
-                                    <span className="card-title">{album.name}</span>
-                                </div>
-                                <div className="card-action">
-                                    <Link to={`/album/${album.uid}`}>Edit</Link>
-                                    <a style={{ cursor: "pointer" }} onClick={() => {
-                                        this.setState({ toDeleteAlbum: album, deleteModalVisible: true })
-                                    }}>Delete</a>
-                                </div>
-                            </div>
-                        </div>
-                    })
-                }
-                <Modal
-                    modalOptions={{ dismissible: false }}
-                    open={this.state.deleteModalVisible}
-                    actions={
-                        <Button modal="close" className="red darken-2" onClick={() => {
-                            this.setState({ deleteModalVisible: false })
-                        }}><Icon left>delete</Icon>Close</Button>
-                    }
-                >
-                    <div className="container">
-                        <h1>Delete the <strong>{this.state.toDeleteAlbum.name}</strong> album!</h1>
-                        <h5>In order to delete it, please provide the password of the album!</h5>
-                        <div className="row">
-                            <div className="col s12">
-                                <div className="row">
-                                    <div className="input-field col s12">
-                                        <input id="delete_album_password" type="password" className="validate" ref={toDeleteAlbumPassword => this.toDeleteAlbumPassword = toDeleteAlbumPassword} />
-                                        <label htmlFor="delete_album_password">Album Password</label>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="input-field col s12">
-                                        <button className="btn" type="submit" name="action"
-                                            onClick={() => {
-                                                this.deleteAlbumHandler({ name: this.state.toDeleteAlbum.name, password: this.toDeleteAlbumPassword.value })
-                                            }}
-                                        >Submit
-                    <i className="material-icons right">send</i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Modal>
-                <Modal
-                    modalOptions={{ dismissible: false }}
-                    open={this.state.modalVisible}
-                    actions={
-                        <Button modal="close" className="red darken-2" onClick={() => {
-                            this.setState({ modalVisible: false })
-                        }}><Icon left>delete</Icon>Close</Button>
-                    }
-                >
-                    <div className="container">
-                        <h1>Create a new <strong>SLID Album </strong>!</h1>
-                        <div className="row">
-                            <div className="col s12">
-                                <div className="row">
-                                    <div className="input-field col s12">
-                                        <input id="album_name" type="text" className="validate" ref={newAlbumName => this.newAlbumName = newAlbumName} />
-                                        <label htmlFor="album_name">Album Name</label>
-                                    </div>
-                                    <div className="input-field col s12">
-                                        <input id="album_password" type="password" className="validate" ref={newAlbumPassword => this.newAlbumPassword = newAlbumPassword} />
-                                        <label htmlFor="album_password">Album Password</label>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="input-field col s12">
-                                        <button className="btn waves-light" type="submit" name="action"
-                                            onClick={() => {
-                                                let ok = true;
-                                                this.props.albums.forEach(album => {
-                                                    if (album.name.toLowerCase() === this.newAlbumName.value.toLowerCase())
-                                                        ok = false
-                                                })
-                                                if (ok === true)
-                                                    this.addAlbumHandler({ name: this.newAlbumName.value, password: this.newAlbumPassword.value })
-                                                else
-                                                    alert("You already have an album with this name.")
-                                            }}
-                                        >Add
-                    <i className="material-icons right">send</i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Modal>
-            </div>
+            </React.Fragment>
         )
     }
 }

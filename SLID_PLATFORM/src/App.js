@@ -59,8 +59,8 @@ class App extends Component {
             <React.Fragment>
               <nav>
                 <div className="nav-wrapper teal lighten-2">
-                  <Link className="brand-logo" to="/"><img src={logo} style={{height:"60px"}} /></Link>
-                  <ul className="right hide-on-med-and-down">
+                  <Link className="brand-logo left" to="/"><img src={logo} style={{height:"60px"}} /></Link>
+                  <ul className="right">
                     {this.state.user === 'notVerified' ? null : this.state.user ?
                       <React.Fragment>
                         <li><a
@@ -77,21 +77,6 @@ class App extends Component {
                   </ul>
                 </div>
               </nav>
-              <ul className="sidenav" id="mobile-demo">
-                {this.state.user === 'notVerified' ? null : this.state.user ?
-                  <React.Fragment>
-                    <li><a
-                      onClick={() => {
-                        firebase.auth().signOut();
-                      }}
-                    >Logout</a></li>
-                  </React.Fragment>
-                  :
-                  <React.Fragment>
-                    <li><Link to="/register"><i className="material-icons left">person_add</i>Regsiter</Link></li>
-                    <li><Link to="/login"><i className="material-icons left">how_to_reg</i>Login</Link></li>
-                  </React.Fragment>}
-              </ul>
             </React.Fragment>
             <Switch>
               <PrivateRoute

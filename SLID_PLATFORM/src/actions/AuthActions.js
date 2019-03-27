@@ -18,10 +18,10 @@ export const loginWithGithub = () => {
     let provider = new firebase.auth.GithubAuthProvider();
     return (dispatch) => {
         dispatch({ type: LOGIN_GITHUB_START });
-        firebase.auth().signInWithPopup(provider).then(function (result) {
+        firebase.auth().signInWithRedirect(provider).then(function (result) {
             dispatch({ type: LOGIN_GITHUB_SUCCESS })
         }).catch(function (error) {
-            console.log(error);
+            alert(error.message);
             dispatch({ type: LOGIN_GITHUB_FAIL })
         });
     }

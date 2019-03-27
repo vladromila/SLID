@@ -28,7 +28,10 @@ class LoginPage extends React.Component {
                         <div className="row">
                             <button className="btn waves-effect waves-light" name="action"
                                 onClick={() => {
-                                    firebase.auth().signInWithEmailAndPassword(this.email.value, this.password.value);
+                                    firebase.auth().signInWithEmailAndPassword(this.email.value, this.password.value)
+                                        .catch((e) => {
+                                            alert(e.message);
+                                        })
                                 }}
                             >Login
             <i className="material-icons right">send</i>
@@ -53,8 +56,4 @@ class LoginPage extends React.Component {
         )
     }
 }
-let mapStateToProps = state => {
-    const { loadingGithub } = state.Auth;
-    return { loading: true };
-}
-export default connect(mapStateToProps, { loginWithGithub })(LoginPage);
+export default connect(null, { loginWithGithub })(LoginPage);
