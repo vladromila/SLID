@@ -77,18 +77,18 @@ body {
 
 .left-arrow {
   left: 0;
-  background: url("../../assets/left-arrow.svg");
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
+  background-color: #333;
+  mask-image: url("../../assets/left-arrow.svg");
+  -webkit-mask-image: url("../../assets/left-arrow.svg");
+  -webkit-mask-size: 100% 100%;
 }
 
 .right-arrow {
   right: 0;
-  background: url("../../assets/right-arrow.svg");
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
+  background-color: #333;
+  mask-image: url("../../assets/right-arrow.svg");
+  -webkit-mask-image: url("../../assets/right-arrow.svg");
+  -webkit-mask-size: 100% 100%;
 }
 
 .arrow-anim {

@@ -50,7 +50,7 @@ class Slid {
     this.animations = ["-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)"]
 
     //SLID Variables
-    this.id = id || "1mILdKuZZRbICLqw2IprhtmqO9g2";
+    this.id = id || "UvJMgAqsNueG68Uv9t1pbwbsSD72";
     this.index = index;
     this.responsive = responsive || [];
     this.autoSlide = autoSlide || false;
@@ -114,7 +114,7 @@ class Slid {
     this.handleFirebaseControl = this.handleFirebaseControl.bind(this);
 
     //arrowListener handler and variable
-    this.isArrowControlEnaled = false;
+    this.isArrowControlEnaled = true;
     this.arrowListener = this.arrowListener.bind(this);
   }
 
@@ -276,7 +276,7 @@ class Slid {
             this.goNext();
           }
           else
-            if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
+            if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "previousSlide") {
               this.goPrev();
             }
         }
@@ -320,7 +320,7 @@ class Slid {
     if (this.dragEnabled === true) {
       this.carousel.addEventListener("dragstart", this.dragStart);
       this.carousel.addEventListener("dragover", this.dragOver);
-      this.album.addEventListener("dragleave", this.dragLeave);
+      this.carousel.addEventListener("dragleave", this.dragLeave);
       this.carousel.addEventListener("dragend", this.dragEnd);
     }
 
