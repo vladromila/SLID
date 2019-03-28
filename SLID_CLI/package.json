@@ -1,6 +1,6 @@
 {
-  "name": "slid_cli101",
-  "version": "1.2.1",
+  "name": "slid_cli",
+  "version": "1.6.0",
   "description": "",
   "main": "index.js",
   "bin": {

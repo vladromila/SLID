@@ -19,27 +19,27 @@ class LoginPage extends Component {
     }
     render() {
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, backgroundColor: "white" }}>
                 <View style={{ flex: 1, flexDirection: 'column', backgroundColor: 'rgba(0,0,0,0)' }}>
-                    <Header centerComponent={<Text style={{ fontSize: 22, color: 'white', fontWeight: 'bold' }}>Login</Text>} backgroundColor="#1E6EC7" />
+                    <Header centerComponent={<Text style={{ fontSize: 22, color: 'white', fontWeight: 'bold' }}>Login</Text>} backgroundColor="#26a69a" />
                     <Content>
                         <Form>
                             <Item stackedLabel>
-                                <Label style={{ color: '#1E6EC7', fontSize: 20 }}>Email</Label>
-                                <Input value={this.state.email} style={{ color: '#1E6EC7', fontSize: 18 }} onChangeText={(email) => { this.setState({ email: email }) }} />
+                                <Label style={{ color: '#26a69a', fontSize: 20 }}>Email</Label>
+                                <Input value={this.state.email} style={{ color: '#26a69a', fontSize: 18 }} onChangeText={(email) => { this.setState({ email: email }) }} />
                             </Item>
                             <Item stackedLabel>
-                                <Label style={{ color: '#1E6EC7', fontSize: 20 }}>Parola</Label>
-                                <Input style={{ color: '#1E6EC7', fontSize: 18 }} onChangeText={(password) => { this.setState({ password: password }) }} secureTextEntry />
+                                <Label style={{ color: '#26a69a', fontSize: 20 }}>Parola</Label>
+                                <Input style={{ color: '#26a69a', fontSize: 18 }} onChangeText={(password) => { this.setState({ password: password }) }} secureTextEntry />
                             </Item>
                             <SocialIcon
                                 title='Logheaza-te'
                                 button
                                 onPress={() => this.onButtonPress()
                                 }
-                                underlayColor={'#1E6EC7'}
+                                underlayColor={'#26a69a'}
                                 loading={this.props.loading}
-                                style={{ backgroundColor: '#1E6EC7' }}
+                                style={{ backgroundColor: '#26a69a' }}
                             />
                         </Form>
                     </Content>

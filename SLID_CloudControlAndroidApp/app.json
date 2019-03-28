@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Slid Cloud Controller",
-    "slug": "slidphoneapp",
+    "name": "Slid Cloud Control",
+    "slug": "slidcloudcontrol",
     "privacy": "public",
     "sdkVersion": "32.0.0",
     "platforms": [
@@ -26,7 +26,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "slidcloudcontroller.slid.com",
+      "package": "slidcloudcontrol.slid.com",
       "versionCode": 100
     }
   }

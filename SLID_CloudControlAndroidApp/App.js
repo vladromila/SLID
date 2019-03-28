@@ -9,7 +9,14 @@ import reducers from './src/reducers';
 export default class App extends React.Component {
   componentWillMount() {
     firebase.initializeApp(
-    //api key here
+      {
+        apiKey: "AIzaSyBZwaUfj4RaI9kVGXWgHUz23jroUGd-mn0",
+        authDomain: "slidalbums.firebaseapp.com",
+        databaseURL: "https://slidalbums.firebaseio.com",
+        projectId: "slidalbums",
+        storageBucket: "slidalbums.appspot.com",
+        messagingSenderId: "167009021016"
+      }
     );
   }
   render() {
