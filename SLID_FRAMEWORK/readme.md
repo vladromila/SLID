@@ -37,7 +37,7 @@ We also support breakpoints for responsivness purposes. Here is an example how s
 ```json
 [
     {
-        "id": "tIBcmKMKIpcBQSjy3NklWIrI1Vw2",
+        "id": "YOUR ALBUM ID",
         "responsive": [
             {
                 "width": 1000,
