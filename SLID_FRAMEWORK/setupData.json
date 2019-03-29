@@ -1,0 +1,57 @@
+[
+    {
+        "id": "tIBcmKMKIpcBQSjy3NklWIrI1Vw2",
+        "responsive": [
+            {
+                "width": 1000,
+                "settings": {
+                    "albumWidth": "750",
+                    "albumHeight": "100%",
+                    "albumBackgroundColor": "black",
+                    "autoSlide": false,
+                    "autoSlideTime": 2000,
+                    "autoSlideHoverPause": true,
+                    "dragEnabled": true,
+                    "voiceControlEnabled": false,
+                    "arrowsColor": "red"
+                }
+            },
+            {
+                "width": 500,
+                "settings": {
+                    "albumWidth": "75%",
+                    "albumHeight": "100%",
+                    "albumBackgroundColor": "red",
+                    "autoSlide": false,
+                    "autoSlideTime": 2000,
+                    "autoSlideHoverPause": true,
+                    "dragEnabled": false,
+                    "showArrows": false,
+                    "cloudControlEnabled": true,
+                    "cliControlEnabled": true,
+                    "cliWebControlEnabled": false,
+                    "voiceControlEnabled": false,
+                    "arrowsColor": "#fff"
+                }
+            },
+            {
+                "width": 250,
+                "settings": {
+                    "albumWidth": "100%",
+                    "arrowsColor": "black",
+                    "albumBackgroundColor": "green"
+                }
+            }
+        ],
+        "autoSlide": false,
+        "autoSlideTime": 1000,
+        "autoSlideHoverPause": true,
+        "dragEnabled": false,
+        "showArrows": true,
+        "cloudControlEnabled": true,
+        "cliControlEnabled": true,
+        "cliWebControlEnabled": true,
+        "voiceControlEnabled": true,
+        "arrowsColor": "red"
+    }
+]

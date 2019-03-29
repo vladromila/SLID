@@ -1,3 +1,5 @@
+var is_chrome = /chrome/i.test(navigator.userAgent);
+
 let firebaseApp = document.createElement("script");
 firebaseApp.src = "https://www.gstatic.com/firebasejs/5.8.2/firebase-app.js";
 document.getElementById("SLIDScript").parentElement.insertBefore(firebaseApp, document.getElementById("SLIDScript"));
@@ -5,23 +7,50 @@ let firebaseDatabase = document.createElement("script");
 firebaseDatabase.src = "https://www.gstatic.com/firebasejs/5.8.2/firebase-database.js";
 document.getElementById("SLIDScript").parentElement.insertBefore(firebaseDatabase, document.getElementById("SLIDScript"));
 
+let selectedForVoice = -1;
+let isVoiceCommandOn = false;
 
-function loadJSON(callback) {
+var recognition = null;
+var speechRecognitionList = null;
+if (is_chrome === true) {
+  var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+  var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+  var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
 
-  var xobj = new XMLHttpRequest();
-  xobj.overrideMimeType("application/json");
-  xobj.open('GET', document.getElementById("setupData").attributes.src.value, true);
-  xobj.onreadystatechange = function () {
-    if (xobj.readyState == 4 && xobj.status == "200") {
-      callback(xobj.responseText);
-    }
-  };
-  xobj.send(null);
+  var commands = ["next", "nextslide", "next slide", "prev", "previous", "previousslide", "previous slide"];
+  var grammar = '#JSGF V1.0; grammar colors; public <command> = ' + commands.join(' | ') + ' ;'
+
+  var recognition = new SpeechRecognition();
+  var speechRecognitionList = new SpeechGrammarList();
+  speechRecognitionList.addFromString(grammar, 1);
+  recognition.grammars = speechRecognitionList;
+  recognition.continuous = false;
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
 }
 
-loadJSON(function (response) {
-  console.log(JSON.parse(response));
-});
+if (recognition)
+  recognition.onnomatch = function (e) {
+    recognition.abort();
+    isVoiceCommandOn = false;
+  }
+function loadJSON(callback) {
+  if (document.getElementById("setupData")) {
+    let xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', document.getElementById("setupData").attributes.src.value, true);
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        callback(xobj.responseText);
+      }
+    };
+    xobj.send(null);
+  }
+  else
+    callback(false);
+}
+
 
 class Slid {
   constructor(
@@ -34,12 +63,11 @@ class Slid {
       autoSlideHoverPause,
       dragEnabled,
       showArrows,
-      animationNumber,
-      customTransition,
       cloudControlEnabled,
       cliControlEnabled,
+      cliWebControlEnabled,
       voiceControlEnabled,
-      platformControlEnabled
+      arrowsColor
     }) {
     this.album = album;
     this.children = album.children
@@ -49,36 +77,36 @@ class Slid {
     this.responsive = [];
     this.animations = ["-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)"]
 
-    //SLID Variables
-    this.id = id || "UvJMgAqsNueG68Uv9t1pbwbsSD72";
-    this.index = index;
-    this.responsive = responsive || [];
-    this.autoSlide = autoSlide || false;
+
+    //SLID variables
+    this.id = id || null;
+    this.index = index || null;
+    this.responsive = responsive ? responsive.sort((a, b) => (a.width > b.width) ? 1 : -1) : [];
+    this.autoSlide = autoSlide !== undefined ? autoSlide : false;
     this.autoSlideTime = autoSlideTime || 1000;
-    this.autoSlideHoverPause = autoSlideHoverPause || true;
-    this.dragEnabled = dragEnabled || true;
-    this.showArrows = showArrows || true;
-    this.animationNumber = animationNumber || 1;
-    this.customTransition = customTransition || null;
+    this.autoSlideHoverPause = autoSlideHoverPause !== undefined ? autoSlideHoverPause : false;
+    this.dragEnabled = dragEnabled !== undefined ? dragEnabled : true;
+    this.showArrows = showArrows !== undefined ? showArrows : true;
     this.cloudControlEnabled = cloudControlEnabled || true;
-    this.cliControlEnabled = cliControlEnabled || false;
-    this.voiceControlEnabled = voiceControlEnabled || false;
-    this.platformControlEnabled = platformControlEnabled || false;
+    this.cliControlEnabled = cliControlEnabled !== undefined ? cliControlEnabled : true;
+    this.cliWebControlEnabled = cliWebControlEnabled !== undefined ? cliWebControlEnabled : true;
+    this.voiceControlEnabled = voiceControlEnabled !== undefined ? voiceControlEnabled : true;
+    this.arrowsColor = arrowsColor || "#333";
 
 
-    //VARIABLES
-    //setTimeout variables
+    //letIABLES
+    //setTimeout letiables
     this.autoSlideTimer = null;
     //Slide counter for translate3D logic
     this.elementIndex = 0;
 
-    //Variable that saves the x coordonate of the initial drag event
+    //letiable that saves the x coordonate of the initial drag event
     this.startX = 0;
 
-    //Drag helper variables
+    //Drag helper letiables
     this.dragLeft = false;
 
-    //Spam blockers variables
+    //Spam blockers letiables
     this.nextDisable = false;
     this.previousDisable = false;
 
@@ -113,9 +141,18 @@ class Slid {
     //Control functions
     this.handleFirebaseControl = this.handleFirebaseControl.bind(this);
 
-    //arrowListener handler and variable
+    //arrowListener handler and letiable
     this.isArrowControlEnaled = true;
     this.arrowListener = this.arrowListener.bind(this);
+
+    //onClick handlers and variables
+    this.onClick = this.onClick.bind(this);
+
+    //Voice command handlers
+    this.onRecognitionResult = this.onRecognitionResult.bind(this);
+    this.responsiveHandler = this.responsiveHandler.bind(this);
+
+    this.onMatchChange = this.onMatchChange.bind(this);
   }
 
   dragStart(e) {
@@ -226,7 +263,7 @@ class Slid {
   goPrev() {
     if (this.previousDisable === false) {
       this.previousDisable = true;
-      this.carousel.style.transition = this.animations[this.animationNumber - 1];
+      this.carousel.style.transition = "-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)";
       this.carousel.style.transform = `translate3d(${-(--this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
       this.checkStart();
     }
@@ -234,18 +271,13 @@ class Slid {
   goNext() {
     if (this.nextDisable === false) {
       this.nextDisable = true;
-      this.carousel.style.transition = this.animations[this.animationNumber - 1];
+      this.carousel.style.transition = "-webkit-transform 0.4s cubic-bezier(0.215, 0.610, 0.355, 1)";
       this.carousel.style.transform = `translate3d(${-(++this.elementIndex * this.album.getBoundingClientRect().width)}px,0,0)`;
       this.checkEnd();
     }
   }
 
   windowResizeHandler() {
-    this.responsive.forEach(bp => {
-      if (window.matchMedia(`(min-width: ${bp.width}px)`).matches) {
-        this.album.style.width = bp.style.width;
-      }
-    })
     this.carousel.style.transition = "none 0s ease 0s"
     this.carousel.style.transform = `translate3d(${-this.elementIndex * this.album.getBoundingClientRect().width}px, 0px, 0px)`;
   }
@@ -268,19 +300,120 @@ class Slid {
       this.autoSlideHandler();
   }
 
-  handleFirebaseControl() {
-    firebase.database().ref(`/${this.id}/controls/`)
-      .on("value", snapshot => {
-        if (snapshot.val()) {
-          if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
-            this.goNext();
-          }
-          else
-            if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "previousSlide") {
-              this.goPrev();
-            }
+  onMatchChange(i) {
+    if (this.responsive[i].settings) {
+      console.log(i);
+      if (this.responsive[i].settings.albumWidth)
+        this.album.style.width = this.responsive[i].settings.albumWidth;
+
+      if (this.responsive[i].settings.albumHeight)
+        this.album.style.height = this.responsive[i].settings.albumHeight;
+
+      if (this.responsive[i].settings.albumBackgroundColor)
+        this.album.style.backgroundColor = this.responsive[i].settings.albumBackgroundColor;
+
+      if (this.responsive[i].settings.autoSlide)
+        this.autoSlide = this.responsive[i].settings.autoSlide
+
+      if (this.responsive[i].settings.autoSlideTime)
+        this.autoSlideTime = this.responsive[i].settings.autoSlideTime
+
+      if (this.responsive[i].settings.autoSlideHoverPause)
+        this.autoSlideHoverPause = this.responsive[i].settings.autoSlideHoverPause;
+
+      if (this.responsive[i].settings.dragEnabled)
+        this.dragEnabled = this.responsive[i].settings.dragEnabled;
+
+      if (this.responsive[i].settings.showArrows)
+        this.showArrows = this.responsive[i].settings.showArrows;
+
+      if (this.responsive[i].settings.cloudControlEnabled)
+        this.cloudControlEnabled = this.responsive[i].settings.cloudControlEnabled;
+
+      if (this.responsive[i].settings.cliControlEnabled)
+        this.cliControlEnabled = this.responsive[i].settings.cliControlEnabled;
+
+      if (this.responsive[i].settings.cliWebControlEnabled)
+        this.cliWebControlEnabled = this.responsive[i].settings.cliWebControlEnabled;
+
+      if (this.responsive[i].settings.voiceControlEnabled)
+        this.voiceControlEnabled = this.responsive[i].settings.voiceControlEnabled;
+
+      if (this.responsive[i].settings.arrowsColor) {
+        this.leftArrow.style.backgroundColor = this.responsive[i].settings.arrowsColor;
+        this.rightArrow.style.backgroundColor = this.responsive[i].settings.arrowsColor;
+      }
+    }
+  }
+  responsiveHandler() {
+    let hadInitiallyMatched = false;
+    for (let i = this.responsive.length - 1; i >= 0; i--) {
+      {
+        if (window.matchMedia(`(min-width: ${this.responsive[i].width}px)`).matches && hadInitiallyMatched === false) {
+          this.onMatchChange(i);
+          hadInitiallyMatched = true
         }
-      })
+        window.matchMedia(`(min-width: ${this.responsive[i].width}px)`).addEventListener("change", (e) => {
+          if (e.matches) {
+            this.onMatchChange(i);
+          }
+          else {
+            this.onMatchChange(i - 1);
+          }
+        })
+      }
+    }
+  }
+  handleFirebaseControl() {
+    if (this.id)
+      firebase.database().ref(`/${this.id}/controls/`)
+        .on("value", snapshot => {
+          if (snapshot.val()) {
+            firebase.database().ref(`/${this.id}/controls/${Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]}`)
+              .remove();
+            if (this.cliControlEnabled === true || this.cloudControlEnabled === true || this.platformControlEnabled === true) {
+              if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "nextSlide") {
+                if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].from === "cca") {
+                  if (this.cloudControlEnabled === true)
+                    this.goNext();
+                }
+                else
+                  if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].from === "cli_web") {
+                    if (this.cliWebControlEnabled === true)
+                      this.goNext();
+                  } else
+                    if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].from === "cli")
+                      if (this.cliControlEnabled === true)
+                        this.goNext();
+              }
+              else
+                if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "previousSlide") {
+                  if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].from === "cca") {
+                    if (this.cloudControlEnabled === true)
+                      this.goPrev();
+                  }
+                  else
+                    if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].from === "cli_web") {
+                      if (this.cliWebControlEnabled === true)
+                        this.goPrev();
+                    } else
+                      if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].from === "cli")
+                        if (this.cliControlEnabled === true)
+                          this.goPrev();
+                }
+                else
+                  if (snapshot.val()[Object.keys(snapshot.val())[Object.keys(snapshot.val()).length - 1]].type === "enableVoice") {
+                    if (this.voiceControlEnabled === true)
+                      if (isVoiceCommandOn === false) {
+                        recognition.onresult = this.onRecognitionResult;
+                        recognition.start();
+                        isVoiceCommandOn = true;
+                        selectedForVoice = this.id;
+                      }
+                  }
+            }
+          }
+        })
   }
 
   arrowListener(e) {
@@ -290,6 +423,32 @@ class Slid {
       if (e.keyCode === 39)
         this.goNext();
     }
+  }
+
+  onClick() {
+    if (recognition) {
+      if (this.voiceControlEnabled === true)
+        if (isVoiceCommandOn === false) {
+          isVoiceCommandOn = true;
+          recognition.onresult = this.onRecognitionResult
+          selectedForVoice = this.id;
+          recognition.start();
+        }
+    }
+  }
+
+  onRecognitionResult(e) {
+    if (this.index === selectedForVoice || this.id === selectedForVoice) {
+      var last = event.results.length - 1;
+      var command = event.results[last][0].transcript;
+      if (command.toLowerCase().indexOf("next") > -1)
+        this.goNext();
+      else
+        if (command.toLowerCase().indexOf("prev") > -1)
+          this.goPrev();
+    }
+    isVoiceCommandOn = false;
+    recognition.abort();
   }
   setUp() {
     let carousel = document.createElement("div");
@@ -320,8 +479,11 @@ class Slid {
     if (this.dragEnabled === true) {
       this.carousel.addEventListener("dragstart", this.dragStart);
       this.carousel.addEventListener("dragover", this.dragOver);
-      this.carousel.addEventListener("dragleave", this.dragLeave);
+      this.album.addEventListener("dragleave", this.dragLeave);
       this.carousel.addEventListener("dragend", this.dragEnd);
+    }
+    else {
+      this.carousel.draggable = false;
     }
 
     if (this.showArrows === true) {
@@ -329,6 +491,9 @@ class Slid {
       leftArrow.classList.add("left-arrow");
       let rightArrow = document.createElement("div");
       rightArrow.classList.add("right-arrow");
+
+      rightArrow.style.backgroundColor = this.arrowsColor;
+      leftArrow.style.backgroundColor = this.arrowsColor;
 
       this.album.appendChild(leftArrow);
       this.album.appendChild(rightArrow);
@@ -346,6 +511,9 @@ class Slid {
     }
     this.album.onmouseover = this.carouselMouseOver;
     this.album.onmouseleave = this.carouselMouseLeave;
+
+    this.carousel.onclick = this.onClick;
+
     if (this.autoSlide === true) {
       this.autoSlideHandler();
     }
@@ -353,13 +521,16 @@ class Slid {
     window.addEventListener("resize", this.windowResizeHandler);
     window.addEventListener("keydown", this.arrowListener);
 
-    if (this.cliControlEnabled === true || this.cloudControlEnabled === true || this.platformControlEnabled === true)
-      this.handleFirebaseControl();
+    this.handleFirebaseControl();
+
+    if (this.responsive.length > 0)
+      this.responsiveHandler();
   }
   start() {
     this.setUp();
   }
 }
+
 
 firebaseApp.onload = async () => {
   firebase.initializeApp({
@@ -371,9 +542,12 @@ firebaseApp.onload = async () => {
     messagingSenderId: "167009021016"
   })
   firebaseDatabase.onload = async () => {
-    document.querySelectorAll(".album").forEach((album, i) => {
-      let s = new Slid({ album: album, index: i });
-      s.start();
-    })
+    loadJSON(function (response) {
+      document.querySelectorAll(".album").forEach((album, i) => {
+        let s = new Slid({ album: album, index: i, ...JSON.parse(response)[i] });
+        s.start();
+      })
+    });
+
   }
 }
