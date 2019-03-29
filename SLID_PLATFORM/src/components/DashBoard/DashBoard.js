@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { Modal, Button, Icon } from 'react-materialize'
 import firebase from 'firebase';
 import Breadcrumb from 'react-materialize/lib/Breadcrumb';
+import Highlight from 'react-highlight'
 class DashBoard extends React.Component {
 
     constructor() {
@@ -12,7 +13,9 @@ class DashBoard extends React.Component {
         this.state = {
             modalVisible: false,
             deleteModalVisible: false,
-            toDeleteAlbum: {}
+            toDeleteAlbum: {},
+            toShowInfoAlbumModal: false,
+            toShowInfoAlbum: {}
         }
         this.deleteAlbumHandler = this.deleteAlbumHandler.bind(this);
     }
@@ -126,7 +129,11 @@ class DashBoard extends React.Component {
                     </div>
                     {
                         this.props.albums.map((album, i) => {
-                            return <div key={i} className="col s12 m4">
+                            return <div key={i} className="col s12 m4"
+                                onClick={() => {
+                                    this.setState({ toShowInfoAlbumModal: true, toShowInfoAlbum: album })
+                                }}
+                            >
                                 <div className="card">
                                     <div className="card-content">
                                         <span className="card-title">{album.name}</span>
@@ -221,6 +228,22 @@ class DashBoard extends React.Component {
                                 </div>
                             </div>
                         </div>
+                    </Modal>
+                    <Modal
+                        open={this.state.toShowInfoAlbumModal}
+                        modalOptions={{ dismissible: false }}
+                        actions={
+                            <Button modal="close" className="red darken-2" onClick={() => {
+                                this.setState({ toShowInfoAlbumModal: false })
+                            }}><Icon left>close</Icon>Close</Button>
+                        }
+                    >
+                        <h2>Album Information</h2>
+                        <h5>ID: <strong>{this.state.toShowInfoAlbum.uid}</strong></h5>
+                        <h6>setupData.json settings in order to connect:</h6>
+                        <Highlight className='json'>
+                            {`[{"id":${this.state.toShowInfoAlbum.uid}... }]`}
+                        </Highlight>
                     </Modal>
                 </div>
             </React.Fragment>

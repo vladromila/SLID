@@ -71,7 +71,7 @@ class App extends Component {
                       </React.Fragment>
                       :
                       <React.Fragment>
-                        <li><Link to="/register"><i className="material-icons left">person_add</i>Regsiter</Link></li>
+                        <li><Link to="/register"><i className="material-icons left">person_add</i>Register</Link></li>
                         <li><Link to="/login"><i className="material-icons left">how_to_reg</i>Login</Link></li>
                       </React.Fragment>}
                   </ul>
