@@ -14,6 +14,9 @@ firebase_admin.initializeApp({
     credential: firebase_admin.credential.cert(JSON.parse(process.env.FIREBASE_ADMIN_CONFIG)),
     databaseURL: "https://slid-24099.firebaseio.com"
 });
+
+app.use(express.static(__dirname + "/public"))
+
 app.post("/getonlineresources/", (req, res, next) => {
     firebase_admin.database().ref(`/albums/${req.body.uid}`)
         .once("value", (snapshot) => {
@@ -41,6 +44,12 @@ app.post("/addalbumsuser", (req, res, next) => {
             res.end();
         })
 })
+
+app.get("/downloadframework", (req, res, next) => {
+    res.download("/public/slid.zip");
+    res.redirect("https://slidserver.herokuapp.com/");
+})
+
 app.post("/deletealbumuser", (req, res, next) => {
     firebase.auth().signInWithEmailAndPassword(req.body.username + "@slid.com", req.body.password)
         .then((data, err) => {
